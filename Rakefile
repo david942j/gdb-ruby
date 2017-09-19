@@ -1,0 +1,19 @@
+require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
+require 'yard'
+
+task default: %i(rubocop spec)
+
+RuboCop::RakeTask.new(:rubocop) do |task|
+  task.patterns = %w[lib/**/*.rb spec/**/*.rb']
+end
+
+RSpec::Core::RakeTask.new(:spec) do |task|
+  task.pattern = './spec/**/*_spec.rb'
+  task.rspec_opts = ['--color', '--require spec_helper', '--order rand']
+end
+
+YARD::Rake::YardocTask.new(:doc) do |t|
+  t.files = ['lib/**/*.rb']
+  t.stats_options = ['--list-undoc']
+end
