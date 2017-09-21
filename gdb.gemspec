@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.authors       = ['david942j']
   s.email         = ['david942j@gmail.com']
   s.homepage      = 'https://github.com/david942j/gdb-ruby'
-  s.files         = Dir['lib/**/*.rb'] + %w(README.md Rakefile)
+  s.files         = Dir['lib/**/*.{rb,py}'] + %w(README.md Rakefile)
   s.require_paths = ['lib']
 
   s.required_ruby_version = '>= 2.1.0'
