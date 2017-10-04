@@ -1,3 +1,5 @@
+#encoding: ascii-8bit
+
 require 'gdb/gdb'
 
 describe GDB::GDB do
@@ -47,7 +49,6 @@ Breakpoint 1, 0x0000555555554814 in main ()
 
   it 'run' do
     @new_gdb.call('bash', args: '-nh') do |gdb|
-      gdb.execute('set follow-fork-mode parent')
       expect(gdb.run('-c "echo 1111"').lines[1].strip).to eq '1111'
     end
   end
@@ -60,6 +61,42 @@ Breakpoint 1, 0x0000555555554814 in main ()
       expect(gdb.register(:rdi)).to be 1
       expect(gdb.register(:rax)).to be 0x4005d6
       expect(gdb.register(:al)).to be 0xd6
+    end
+  end
+
+  it 'read_memory' do
+    @new_gdb.call('amd64.elf') do |gdb|
+      gdb.b('main')
+      gdb.run('pusheen the cat')
+      expect(gdb.read_memory(0x400000, 4)).to eq "\x7fELF"
+      # Lets fetch argv
+      argc = gdb.register(:rdi)
+      args = gdb.read_memory(gdb.register(:rsi), argc, as: :uint64)
+      ary = Array.new(argc) do |i|
+        next 'argv0' if i == 0
+        gdb.read_memory(args[i], 1) do |m|
+          str = ''
+          str << m.read(1) until str.end_with?("\x00")
+          str[0..-2]
+        end
+      end
+      expect(ary).to eq %w[argv0 pusheen the cat]
+    end
+  end
+
+  it 'write_memory' do
+    @new_gdb.call('bash', args: '-nh') do |gdb|
+      gdb.b('main')
+      gdb.r('-c "echo 123"')
+      argv2 = gdb.read_memory(gdb.register(:rsi) + 16, 1, as: :uint64)
+      expect(gdb.read_memory(argv2, 8)).to eq 'echo 123'
+      gdb.write_memory(argv2 + 5, 'ABC')
+      pid = gdb.pid
+      expect(gdb.execute('continue').lines.map(&:strip).join("\n")).to eq <<-EOS.strip
+Continuing.
+ABC
+[Inferior 1 (process #{pid}) exited normally]
+      EOS
     end
   end
 end

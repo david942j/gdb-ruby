@@ -4,6 +4,7 @@ require 'readline'
 
 require 'gdb/gdb_error'
 require 'gdb/tube/tube'
+require 'gdb/type_io'
 
 module GDB
   # For launching a gdb process.
@@ -97,7 +98,7 @@ module GDB
     # @todo
     #   Handle when +reg_name+ is not a general-purpose register.
     def register(reg_name)
-      raise GDBError, 'Process is not running' unless alive?
+      check_alive!
       Integer(python_p("gdb.parse_and_eval('$#{reg_name}')"))
     end
     alias reg register
@@ -116,7 +117,56 @@ module GDB
     # @return [Integer]
     #   The pid of process. If process is not running, zero is returned.
     def pid
-      python_p('gdb.selected_inferior().pid').to_i
+      @pid = python_p('gdb.selected_inferior().pid').to_i
+    end
+
+    # Read current process's memory.
+    #
+    # See {TypeIO#read} for details.
+    #
+    # @param [Mixed] args
+    #
+    # @return [Object]
+    #
+    # @example
+    #   # example of fetching argv
+    #   gdb = GDB::GDB.new('spec/binaries/amd64.elf')
+    #   gdb.break('main')
+    #   gdb.run('pusheen the cat')
+    #   gdb.read_memory(0x400000, 4)
+    #   #=> "\x7fELF"
+    #   argc = gdb.register(:rdi)
+    #   #=> 4
+    #   args = gdb.read_memory(gdb.register(:rsi), argc, as: :uint64)
+    #   Array.new(3) do |i|
+    #     gdb.read_memory(args[i + 1], 1) do |m|
+    #       str = ''
+    #       str << m.read(1) until str.end_with?("\x00")
+    #       str
+    #     end
+    #   end
+    #   #=> ["pusheen\x00", "the\x00", "cat\x00"]
+    def read_memory(*args, &block)
+      check_alive! # this would set @pid
+      File.open("/proc/#{@pid}/mem", 'rb') do |f|
+        ::GDB::TypeIO.new(f).read(*args, &block)
+      end
+    end
+
+    # Write a string to process at specific address.
+    #
+    # @param [Integer] addr
+    #   Target address.
+    # @param [String] str
+    #   String to be written.
+    #
+    # @return [Integer]
+    #   Bytes written.
+    def write_memory(addr, str)
+      check_alive! # this would set @pid
+      File.open("/proc/#{@pid}/mem", 'wb') do |f|
+        ::GDB::TypeIO.new(f).write(addr, str)
+      end
     end
 
     # To simplify the frequency call of +python print(xxx)+.
@@ -151,6 +201,10 @@ module GDB
     alias quit close
 
     private
+
+    def check_alive!
+      raise GDBError, 'Process is not running' unless alive?
+    end
 
     TIOCSWINSZ = 0x5414
 
