@@ -81,6 +81,8 @@ Starting program: #{@binpath['amd64.pie.elf']}
         end
       end
       expect(ary).to eq %w[argv0 pusheen the cat]
+
+      expect(gdb.read_memory(args[1], 3, as: :cstring)).to eq ["pusheen\x00", "the\x00", "cat\x00"]
     end
   end
 

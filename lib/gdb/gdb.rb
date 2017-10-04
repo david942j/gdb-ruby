@@ -39,15 +39,16 @@ module GDB
       @tube.puts(cmd)
       @tube.readuntil(@prompt).strip
     end
+    alias exec execute
 
     # Set break point.
     #
-    # This function does some magic, see params.
+    # This method some magic, see parameters or examples.
     #
     # @param [Integer, String] point
     #   If +Integer+ is given, will be translated as set break point
     #   at address +point+, i.e. equivalent to +break *<integer>+.
-    #   If +String+ is given, equivalent to invoke +execve('break <point>')+.
+    #   If +String+ is given, equivalent to invoke +execute("break <point>")+.
     #
     # @return [String]
     #   Returns what gdb displayed after set a break point.
@@ -76,9 +77,11 @@ module GDB
     #
     # @example
     #   gdb = GDB::GDB.new('bash')
-    #   gdb.execute('set follow-fork-mode parent')
-    #   gdb.run('-c "echo 111"')
-    #   #=> TODO
+    #   puts gdb.run('-c "echo 111"')
+    #   # Starting program: /bin/bash -c "echo 111"
+    #   # 111
+    #   # [Inferior 1 (process 3229) exited normally]
+    #   #=> nil
     #
     # @note
     #   If breakpoints are not set properly and cause gdb hangs,
@@ -105,7 +108,10 @@ module GDB
 
     # Is process running?
     #
-    # Actually judged by output of .
+    # Actually judged by if {#pid} returns zero.
+    #
+    # @return [Boolean]
+    #   True for process is running.
     def alive?
       !pid.zero?
     end
@@ -125,8 +131,16 @@ module GDB
     # See {TypeIO#read} for details.
     #
     # @param [Mixed] args
+    #   See {TypeIO#read}.
     #
     # @return [Object]
+    #   See {TypeIO#read}.
+    #
+    # @yieldparam [IO] io
+    #   See {TypeIO#read}.
+    #
+    # @yieldreturn [Object]
+    #   See {TypeIO#read}.
     #
     # @example
     #   # example of fetching argv
@@ -145,6 +159,10 @@ module GDB
     #       str
     #     end
     #   end
+    #   #=> ["pusheen\x00", "the\x00", "cat\x00"]
+    #
+    #   # or, use our build-in types listed in {TypeIO::TYPES}
+    #   gdb.read_memory(args[1], 3, as: :cstring)
     #   #=> ["pusheen\x00", "the\x00", "cat\x00"]
     def read_memory(*args, &block)
       check_alive! # this would set @pid

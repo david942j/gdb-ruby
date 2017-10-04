@@ -67,13 +67,13 @@ module GDB
       @io = io.binmode
     end
 
-    # Read from memory.
+    # Read data at specific address and cast into desired type.
     #
     # @param [Integer] addr
     #   Address to be read.
     #
     # @param [Integer] size
-    #   Number of data to be read. See params +as+ for details.
+    #   Number of data to be read. See parameter +as+ for details.
     #
     # @param [Symbol] as
     #   The needed returned type.
@@ -90,7 +90,7 @@ module GDB
     #   Block would be invoked +size+ times, and the returned object would be collected into
     #   one array and returned.
     #
-    #   This is convenient for reading non-stable size objects, i.e. c++'s string object.
+    #   This is convenient for reading non-stable size objects, e.g. c++'s string object.
     #   See examples for clearer usage.
     #
     # @yieldreturn [Object]
