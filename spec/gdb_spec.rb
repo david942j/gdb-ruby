@@ -1,5 +1,7 @@
 #encoding: ascii-8bit
 
+require 'tempfile'
+
 require 'gdb/gdb'
 
 describe GDB::GDB do
@@ -97,5 +99,35 @@ the FAT
 [Inferior 1 (process #{pid}) exited normally]
       EOS
     end
+  end
+
+  it 'interact' do
+    old_stdin = $stdin.dup
+    $stdin = Tempfile.new('gdb-ruby').binmode
+    $stdin.write("b main\nrun\nquit\n")
+    $stdin.rewind
+    class << $stdin
+      def raw; yield
+      end
+
+      def readpartial(size)
+        super
+      rescue EOFError
+        ''
+      end
+    end
+    @new_gdb.call('amd64.elf', args: '-nh') do |gdb|
+      expect { gdb.interact }.to output(include(<<-EOS.gsub("\n", "\r\n"))).to_stdout
+
+(gdb-ruby) b main
+Breakpoint 1 at 0x40062a
+(gdb-ruby) run
+Starting program: #{@binpath['amd64.elf']} 
+
+Breakpoint 1, 0x000000000040062a in main ()
+(gdb-ruby) quit
+      EOS
+    end
+    $stdin = old_stdin
   end
 end

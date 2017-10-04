@@ -78,6 +78,13 @@ module GDB
         @out.close
       end
 
+      # Is {#close} invoked?
+      #
+      # @return [Boolean]
+      def closed?
+        @in.closed? && @out.closed?
+      end
+
       private
 
       def partial

@@ -194,6 +194,7 @@ module GDB
     #
     # @return [void]
     def close
+      return if @tube.closed?
       @tube.close
       Process.wait(@gdb_pid)
       nil
