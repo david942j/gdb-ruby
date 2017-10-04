@@ -16,6 +16,9 @@ describe GDB::TypeIO do
 
     it 'build-in types' do
       # test them ALL
+      io = @get_io["abc\x0012345\x00\x00"]
+      expect(io.read(0, 3, as: :cstring)).to eq ["abc\x00", "12345\x00", "\x00"]
+
       io = @get_io["\xef\xbe\xad\xde\x0c\xb0\xce\xfaAAAAAAAA"]
       expect(io.read(0, 4, as: :int8)).to eq [-17, -66, -83, -34]
       expect(io.read(0, 1, as: :int16)).to be -0x4111
@@ -28,9 +31,12 @@ describe GDB::TypeIO do
       expect(io.read(0, 1, as: :uint64)).to eq 0xfaceb00cdeadbeef
       expect(io.read(0, 1, as: :uint128)).to eq 0x4141414141414141faceb00cdeadbeef
 
-      io = @get_io["\x80"]
-      expect(io.read(0, 1, as: :uint8)).to be 0x80
-      expect(io.read(0, 1, as: :int8)).to be -128
+      io = @get_io["\x00\x00\x80?"]
+      expect(io.read(0, 1, as: :float)).to eq 1.0
+      io = @get_io["\x00\x00\x00\x00\x00\x00\xF0?"]
+      expect(io.read(0, 1, as: :double)).to eq 1.0
+      io = @get_io["\xFF" * 8]
+      expect(io.read(0, 1, as: :double).nan?).to be true
     end
 
     it 'unsupported' do

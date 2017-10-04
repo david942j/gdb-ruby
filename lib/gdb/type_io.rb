@@ -23,11 +23,26 @@ module GDB
         end
         val
       end
+
+      # Read until +needle+ appears.
+      #
+      # @param [IO] io
+      # @param [String] needle
+      #
+      # @return [String]
+      def read_until(io, needle)
+        str = ''
+        str << io.read(1) until str.end_with?(needle)
+        str
+      end
     end
 
     # Supported built-in types.
     TYPES = {
       string: nil, # will be special handled
+
+      cstring: ->(io) { TypeIO.read_until(io, "\x00") }, # read a null-terminated string.
+
       int8:   ->(io) { TypeIO.read_integer(io, 1, :signed) },
       int16:  ->(io) { TypeIO.read_integer(io, 2, :signed) },
       int32:  ->(io) { TypeIO.read_integer(io, 4, :signed) },
@@ -38,7 +53,10 @@ module GDB
       uint16:  ->(io) { TypeIO.read_integer(io, 2, :unsigned) },
       uint32:  ->(io) { TypeIO.read_integer(io, 4, :unsigned) },
       uint64:  ->(io) { TypeIO.read_integer(io, 8, :unsigned) },
-      uint128: ->(io) { TypeIO.read_integer(io, 16, :unsigned) }
+      uint128: ->(io) { TypeIO.read_integer(io, 16, :unsigned) },
+
+      float: ->(io) { io.read(4).unpack('F').first },
+      double: ->(io) { io.read(8).unpack('D').first }
     }.freeze
 
     # Instantiate a {TypeIO} object.
