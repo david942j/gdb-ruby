@@ -19,10 +19,8 @@ describe GDB::GDB do
 
     @new_gdb.call('amd64.pie.elf', args: '-nh') do |gdb|
       expect(gdb.execute('break main')).to eq 'Breakpoint 1 at 0x814'
-      expect(gdb.execute('run').lines.map(&:strip).join("\n")).to eq <<-EOS.strip
+      expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
 Starting program: #{@binpath['amd64.pie.elf']}
-
-Breakpoint 1, 0x0000555555554814 in main ()
       EOS
     end
 
@@ -48,7 +46,7 @@ Breakpoint 1, 0x0000555555554814 in main ()
   end
 
   it 'run' do
-    @new_gdb.call('bash', args: '-nh') do |gdb|
+    @new_gdb.call('zsh', args: '-nh') do |gdb|
       expect(gdb.run('-c "echo 1111"').lines[1].strip).to eq '1111'
     end
   end
@@ -85,7 +83,7 @@ Breakpoint 1, 0x0000555555554814 in main ()
   end
 
   it 'write_memory' do
-    @new_gdb.call('bash', args: '-nh') do |gdb|
+    @new_gdb.call('zsh', args: '-nh') do |gdb|
       gdb.b('main')
       gdb.r('-c "echo 123"')
       argv2 = gdb.read_memory(gdb.register(:rsi) + 16, 1, as: :uint64)
