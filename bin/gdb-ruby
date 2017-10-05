@@ -1,0 +1,4 @@
+require 'gdb'
+require 'shellwords'
+
+GDB::GDB.new(Shellwords.join(ARGV)).interact

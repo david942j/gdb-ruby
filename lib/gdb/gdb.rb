@@ -2,6 +2,7 @@ require 'io/console'
 require 'pty'
 require 'readline'
 
+require 'gdb/eval_context'
 require 'gdb/gdb_error'
 require 'gdb/tube/tube'
 require 'gdb/type_io'
@@ -17,7 +18,7 @@ module GDB
       @tube = spawn(gdb + ' ' + arguments)
       @tube.puts("source #{File.join(SCRIPTS_PATH, 'gdbinit.py')}")
       @prompt = '(gdb-ruby) '
-      @tube.readuntil(@prompt)
+      execute('python gdbruby.hook_gdb_prompt()')
     end
 
     # Execute a command in gdb.
@@ -222,7 +223,7 @@ module GDB
     def interact
       # resume prompt
       @tube.puts('python gdbruby.resume_prompt()')
-      $stdin.raw { @tube.interact }
+      $stdin.raw { @tube.interact(method(:output_hook)) }
       close
     end
 
@@ -249,6 +250,31 @@ module GDB
       output, input, @gdb_pid = PTY.spawn(cmd)
       output.ioctl(TIOCSWINSZ, [*IO.console.winsize, 0, 0].pack('S*'))
       ::GDB::Tube::Tube.new(input, output)
+    end
+
+    COMMAND_PREFIX = 'gdb-ruby> '.freeze
+
+    # @param [String] output
+    #
+    # @return [String]
+    def output_hook(output)
+      return output unless output.start_with?(COMMAND_PREFIX)
+      cmd, args = output.slice(COMMAND_PREFIX.size..-1).split(' ', 2)
+      # only support ruby and pry now.
+      return output unless %w[ruby pry].include?(cmd)
+      args = 'send(:invoke_pry)' if cmd == 'pry'
+      execute('python gdbruby.hook_gdb_prompt()')
+      begin
+        eval_context.instance_eval(args)
+      rescue StandardError, ScriptError => e
+        $stdout.puts("#{e.class}: #{e}")
+      end
+      @tube.puts('python gdbruby.resume_prompt()')
+      nil
+    end
+
+    def eval_context
+      @context ||= ::GDB::EvalContext.new(self)
     end
   end
 end

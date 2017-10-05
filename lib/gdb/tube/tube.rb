@@ -55,15 +55,20 @@ module GDB
 
       # Enter interactive mode.
       #
+      # @param [Proc] output_hook
+      #   Called before flush the output to +$stdout+.
+      #
       # @return [void]
-      def interact
+      def interact(output_hook = nil)
         $stdout.write(@buffer.get)
         loop do
           io, = IO.select([$stdin, @out])
           @in.write($stdin.readpartial(READ_SIZE)) if io.include?($stdin)
           next unless io.include?(@out)
           begin
-            $stdout.write(@out.readpartial(READ_SIZE))
+            recv = @out.readpartial(READ_SIZE)
+            recv = output_hook.call(recv) if output_hook
+            $stdout.write(recv) if recv
           rescue Errno::EIO
             break
           end

@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     gdb (0.1.0)
+      pry (~> 0.10)
 
 GEM
   remote: https://www.rubygems.org/
@@ -61,7 +62,6 @@ PLATFORMS
 DEPENDENCIES
   codeclimate-test-reporter (~> 0.6)
   gdb!
-  pry (~> 0.10)
   rake (~> 12.1)
   rspec (~> 3.5)
   rubocop (~> 0.49)
