@@ -106,6 +106,21 @@ module GDB
     end
     alias reg register
 
+    # Get the process's text base.
+    #
+    # @return [Integer]
+    #   The base address.
+    #
+    # @note
+    #   This will also set a variable +$text+ in gdb.
+    def text_base
+      check_alive!
+      base = Integer(execute('info proc stat').scan(/Start of text: (.*)/).flatten.first)
+      execute("set $text = #{base}")
+      base
+    end
+    alias code_base text_base
+
     # Is process running?
     #
     # Actually judged by if {#pid} returns zero.
@@ -119,7 +134,8 @@ module GDB
 
     # Get the process's pid.
     #
-    # This method implemented by invoke +python print(gdb.selected_inferior().pid)+.
+    # This method implemented by invoking +python print(gdb.selected_inferior().pid)+.
+    #
     # @return [Integer]
     #   The pid of process. If process is not running, zero is returned.
     def pid
@@ -170,6 +186,7 @@ module GDB
         ::GDB::TypeIO.new(f).read(*args, &block)
       end
     end
+    alias readm read_memory
 
     # Write a string to process at specific address.
     #
@@ -186,6 +203,7 @@ module GDB
         ::GDB::TypeIO.new(f).write(addr, str)
       end
     end
+    alias writem write_memory
 
     # To simplify the frequency call of +python print(xxx)+.
     #

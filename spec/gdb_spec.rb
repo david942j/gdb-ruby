@@ -64,6 +64,20 @@ Starting program: #{@binpath['amd64.pie.elf']}
     end
   end
 
+  it 'text_base' do
+    @new_gdb.call('amd64.elf') do |gdb|
+      gdb.b('main')
+      gdb.r
+      expect(gdb.text_base).to be 0x400000
+    end
+
+    @new_gdb.call('amd64.pie.elf') do |gdb|
+      gdb.b('main')
+      stop = gdb.r.scan(/Breakpoint 1, 0x(.*) in main \(\)/).flatten.first.to_i(16)
+      expect(gdb.text_base).to eq stop & -4096
+    end
+  end
+
   it 'read_memory' do
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
