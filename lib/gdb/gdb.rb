@@ -102,7 +102,7 @@ module GDB
     #   Handle when +reg_name+ is not a general-purpose register.
     def register(reg_name)
       check_alive!
-      Integer(python_p("gdb.parse_and_eval('$#{reg_name}')"))
+      Integer(python_p("gdb.parse_and_eval('$#{reg_name}')").split.first)
     end
     alias reg register
 

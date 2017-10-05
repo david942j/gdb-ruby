@@ -61,6 +61,7 @@ Starting program: #{@binpath['amd64.pie.elf']}
       expect(gdb.register(:rdi)).to be 1
       expect(gdb.register(:rax)).to be 0x400626
       expect(gdb.register(:ah)).to be 0x6
+      expect(gdb.register(:rip)).to be 0x40062a
     end
   end
 
