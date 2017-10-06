@@ -3,7 +3,7 @@ require 'gdb/gdb'
 describe 'command' do
   before(:all) do
     @new_gdb = -> () do
-      gdb = GDB::GDB.new('-nh spec/binaries/amd64.elf')
+      gdb = GDB::GDB.new('-q -nh spec/binaries/amd64.elf')
       # make gdb out more stable
       out = gdb.instance_variable_get(:@tube).instance_variable_get(:@out)
       org_method = out.method(:readpartial)
@@ -28,7 +28,8 @@ describe 'command' do
       allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       @new_gdb.call.interact
       expect($stdout.string.gsub("\r\n", "\n").split("\n").reject(&:empty?).join("\n")).to eq <<-EOS.strip
-(gdb-ruby) help ruby
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
 Syntax: ruby <ruby code>
@@ -42,15 +43,15 @@ Method defined will remain in context:
     ruby def a(b); b * b; end
     ruby p a(9)
     # 81
-(gdb-ruby) ruby puts 123
+(gdb) ruby puts 123
 123
-(gdb-ruby) ruby gdb.break("main")
-(gdb-ruby) ruby gdb.run
-(gdb-ruby) info reg $rip
+(gdb) ruby gdb.break("main")
+(gdb) ruby gdb.run
+(gdb) info reg $rip
 rip            0x40062a\t0x40062a <main+4>
-(gdb-ruby) ruby p a
+(gdb) ruby p a
 NameError: undefined local variable or method `a' for #<GDB::EvalContext>
-(gdb-ruby) quit
+(gdb) quit
       EOS
     end
   end
@@ -67,15 +68,16 @@ NameError: undefined local variable or method `a' for #<GDB::EvalContext>
       @new_gdb.call.interact
       expect(enter_pry).to be true
       expect($stdout.string.gsub("\r\n", "\n").split("\n").reject(&:empty?).join("\n")).to eq <<-EOS.strip
-(gdb-ruby) help pry
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) help pry
 Enter Ruby interactive shell.
 Everything works like a charm!
 Syntax: pry
 Example:
     pry
     # [1] pry(#<GDB::EvalContext>)>
-(gdb-ruby) pry
-(gdb-ruby) quit
+(gdb) pry
+(gdb) quit
       EOS
     end
   end

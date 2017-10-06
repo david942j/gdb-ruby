@@ -57,6 +57,18 @@ module GDB
         end
         ret
       end
+
+      # Push front.
+      #
+      # @param [String] str
+      #   String to be push.
+      #
+      # @return [void]
+      def unshift(str)
+        return if str.nil? || str.empty?
+        @data.unshift(str)
+        @size += str.size
+      end
     end
   end
 end

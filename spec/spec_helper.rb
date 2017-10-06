@@ -12,7 +12,7 @@ end
 require 'io/wait'
 module Helpers
   # @param [Array<String>] ary
-  def hook_stdin_out(*ary, prompt: '(gdb-ruby) ', &block)
+  def hook_stdin_out(*ary, prompt: '(gdb) ', &block)
     old_stdin = $stdin.dup
     old_stdout = $stdout.dup
     $stdin = StringIO.new

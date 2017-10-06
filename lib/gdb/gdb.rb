@@ -14,11 +14,10 @@ module GDB
     SCRIPTS_PATH = File.join(__dir__, 'scripts').freeze
 
     def initialize(arguments, gdb: 'gdb')
-      arguments = '-q' + ' ' + arguments # XXX
+      arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')}" + ' ' + arguments # XXX
       @tube = spawn(gdb + ' ' + arguments)
-      @tube.puts("source #{File.join(SCRIPTS_PATH, 'gdbinit.py')}")
       @prompt = '(gdb-ruby) '
-      execute('python gdbruby.hook_gdb_prompt()')
+      @tube.unget(@tube.readuntil(@prompt))
     end
 
     # Execute a command in gdb.
@@ -221,8 +220,6 @@ module GDB
     #
     # @return [void]
     def interact
-      # resume prompt
-      @tube.puts('python gdbruby.resume_prompt()')
       $stdin.raw { @tube.interact(method(:output_hook)) }
       close
     end
@@ -258,18 +255,19 @@ module GDB
     #
     # @return [String]
     def output_hook(output)
-      return output unless output.start_with?(COMMAND_PREFIX)
+      return output.gsub(@prompt, '') unless output.start_with?(COMMAND_PREFIX)
       cmd, args = output.slice(COMMAND_PREFIX.size..-1).split(' ', 2)
       # only support ruby and pry now.
       return output unless %w[ruby pry].include?(cmd)
       args = 'send(:invoke_pry)' if cmd == 'pry'
-      execute('python gdbruby.hook_gdb_prompt()')
+      # gdb by default set tty
+      # hack it
+      `stty opost onlcr`
       begin
         eval_context.instance_eval(args)
       rescue StandardError, ScriptError => e
         $stdout.puts("#{e.class}: #{e}")
       end
-      @tube.puts('python gdbruby.resume_prompt()')
       nil
     end
 

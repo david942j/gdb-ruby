@@ -2,7 +2,6 @@ import gdb
 import signal
 
 class GDBRuby():
-
     def __init__(self):
         # with this life is prettier.
         gdb.execute("set confirm off")
@@ -11,11 +10,14 @@ class GDBRuby():
         gdb.execute("set step-mode on")
         gdb.execute("set print elements 0")
         gdb.execute("set print pretty on")
+        self.hook_gdb_prompt()
 
     '''
     Hook gdb prompt
     '''
     def hook_gdb_prompt(self):
+        # don't hook twice
+        if gdb.prompt_hook == self._prompt_hook: return
         self._original_hook = gdb.prompt_hook
         gdb.prompt_hook = self._prompt_hook
 
@@ -23,7 +25,11 @@ class GDBRuby():
         gdb.prompt_hook = self._original_hook
 
     def _prompt_hook(self, current_prompt):
-        return '(gdb-ruby) '
+        if self._original_hook == None:
+            org = '(gdb) '
+        else:
+            org = self._original_hook(current_prompt)
+        return '(gdb-ruby) ' + org
 
 __commands__ = []
 def register_command(cls):

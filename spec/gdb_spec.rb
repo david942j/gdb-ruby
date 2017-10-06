@@ -6,9 +6,9 @@ require 'gdb/gdb'
 
 describe GDB::GDB do
   before(:all) do
-    @binpath = ->(f) { File.join(__dir__, 'binaries', f) }
-    @new_gdb = lambda do |f, args: '', &block|
-      gdb = described_class.new(args + ' ' + @binpath[f])
+    @binpath = ->(f) { File.join('spec', 'binaries', f) }
+    @new_gdb = lambda do |f, &block|
+      gdb = described_class.new('-q -nh ' + @binpath[f])
       block.call(gdb)
       gdb.close
     end
@@ -19,10 +19,10 @@ describe GDB::GDB do
       expect(gdb.execute('break main')).to eq 'Breakpoint 1 at 0x40062a'
     end
 
-    @new_gdb.call('amd64.pie.elf', args: '-nh') do |gdb|
+    @new_gdb.call('amd64.pie.elf') do |gdb|
       expect(gdb.execute('break main')).to eq 'Breakpoint 1 at 0x854'
       expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
-Starting program: #{@binpath['amd64.pie.elf']}
+Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
     end
 
@@ -48,7 +48,7 @@ Starting program: #{@binpath['amd64.pie.elf']}
   end
 
   it 'run' do
-    @new_gdb.call('amd64.elf', args: '-nh') do |gdb|
+    @new_gdb.call('amd64.elf') do |gdb|
       expect(gdb.run('1111').lines[1].strip).to eq '1111'
     end
   end
@@ -102,7 +102,7 @@ Starting program: #{@binpath['amd64.pie.elf']}
   end
 
   it 'write_memory' do
-    @new_gdb.call('amd64.elf', args: '-nh') do |gdb|
+    @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
       gdb.r('pusheen "the cat"')
       argv2 = gdb.read_memory(gdb.register(:rsi) + 16, 1, as: :uint64)
@@ -120,16 +120,16 @@ the FAT
 
   it 'interact' do
     hook_stdin_out('b main', 'run', 'quit') do
-      @new_gdb.call('amd64.elf', args: '-nh') { |gdb| gdb.interact }
+      @new_gdb.call('amd64.elf') { |gdb| gdb.interact }
       expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
-
-(gdb-ruby) b main
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) b main
 Breakpoint 1 at 0x40062a
-(gdb-ruby) run
-Starting program: #{@binpath['amd64.elf']} 
+(gdb) run
+Starting program: #{File.realpath(@binpath['amd64.elf'])} 
 
 Breakpoint 1, 0x000000000040062a in main ()
-(gdb-ruby) quit
+(gdb) quit
       EOS
     end
   end

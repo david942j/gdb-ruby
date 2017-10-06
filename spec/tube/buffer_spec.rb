@@ -22,4 +22,10 @@ describe ::GDB::Tube::Buffer do
   it 'empty?' do
     expect(@buffer.empty?).to be_truthy
   end
+
+  it 'unshift' do
+    @buffer << 'abc'
+    @buffer.unshift('123')
+    expect(@buffer.get).to eq '123abc'
+  end
 end

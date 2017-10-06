@@ -44,6 +44,16 @@ module GDB
         cur
       end
 
+      # Put to front of buffer.
+      #
+      # @param [String] str
+      #
+      # @return [nil]
+      def unget(str)
+        @buffer.unshift(str)
+        nil
+      end
+
       # @param [#to_s] data
       #   Data to be sent.
       #
@@ -60,7 +70,7 @@ module GDB
       #
       # @return [void]
       def interact(output_hook = nil)
-        $stdout.write(@buffer.get)
+        @out.ungetc(@buffer.get)
         loop do
           io, = IO.select([$stdin, @out])
           @in.write($stdin.readpartial(READ_SIZE)) if io.include?($stdin)
@@ -69,6 +79,7 @@ module GDB
             recv = @out.readpartial(READ_SIZE)
             recv = output_hook.call(recv) if output_hook
             $stdout.write(recv) if recv
+            @out.ungetc(@buffer.get) unless @buffer.empty?
           rescue Errno::EIO
             break
           end
