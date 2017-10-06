@@ -7,12 +7,12 @@
 
 # GDB-Ruby
 
-It's time for Ruby lovers to use gdb in Ruby, and... use Ruby in gdb!
+It's time for Ruby lovers to use Ruby in gdb, and... gdb in Ruby!
 
 # Use Ruby in gdb
 
-We provide a binary `gdb-ruby` with usage exactly same as normal gdb.
-While has two extra command: `ruby` and `pry`!
+We provide a binary `gdb-ruby` with usage exactly same as normal gdb,
+while has two extra commands: `ruby` and `pry`!
 
 See examples below:
 
