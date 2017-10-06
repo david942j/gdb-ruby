@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'gdb'
+require 'shellwords'
+
+GDB::GDB.new(Shellwords.join(ARGV)).interact

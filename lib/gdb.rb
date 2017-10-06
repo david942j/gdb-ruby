@@ -6,4 +6,5 @@
 module GDB
 end
 
+require 'gdb/gdb'
 require 'gdb/version'

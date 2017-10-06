@@ -1,2 +1,6 @@
-/coverage/
 *.gem
+
+/coverage/
+
+/.yardoc/
+/doc/
