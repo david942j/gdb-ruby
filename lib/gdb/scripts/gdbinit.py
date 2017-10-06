@@ -60,7 +60,7 @@ Method defined will remain in context:
     ruby def a(b); b * b; end
     ruby p a(9)
     # 81
-    """
+"""
     _cmdline_ = 'ruby'
 
 @register_command
@@ -73,7 +73,7 @@ Syntax: pry
 Example:
     pry
     # [1] pry(#<GDB::EvalContext>)>
-    """
+"""
     _cmdline_ = 'pry'
 
 

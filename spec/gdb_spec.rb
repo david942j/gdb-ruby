@@ -119,22 +119,9 @@ the FAT
   end
 
   it 'interact' do
-    old_stdin = $stdin.dup
-    $stdin = Tempfile.new('gdb-ruby').binmode
-    $stdin.write("b main\nrun\nquit\n")
-    $stdin.rewind
-    class << $stdin
-      def raw; yield
-      end
-
-      def readpartial(size)
-        super
-      rescue EOFError
-        ''
-      end
-    end
-    @new_gdb.call('amd64.elf', args: '-nh') do |gdb|
-      expect { gdb.interact }.to output(include(<<-EOS.gsub("\n", "\r\n"))).to_stdout
+    hook_stdin_out('b main', 'run', 'quit') do
+      @new_gdb.call('amd64.elf', args: '-nh') { |gdb| gdb.interact }
+      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 
 (gdb-ruby) b main
 Breakpoint 1 at 0x40062a
@@ -145,6 +132,5 @@ Breakpoint 1, 0x000000000040062a in main ()
 (gdb-ruby) quit
       EOS
     end
-    $stdin = old_stdin
   end
 end
