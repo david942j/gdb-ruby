@@ -30,7 +30,8 @@ module Helpers
         ensure next [[out]]
         end
       end
-      next [[]] if ary.empty? || buffer.index(prompt).nil?
+      next [[out]] if ary.empty?
+      next [[]] if buffer.index(prompt).nil?
       $stdin.string = ary.shift + "\n"
       buffer.slice!(0, buffer.index(prompt) + prompt.size)
       [[$stdin]]
