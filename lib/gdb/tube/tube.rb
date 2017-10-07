@@ -8,8 +8,12 @@ module GDB
       # Batch read size.
       READ_SIZE = 4096
 
+      # Instantiate a {Tube::Tube} object.
+      #
       # @param [IO] io_in
+      #   Input.
       # @param [IO] io_out
+      #   Output.
       def initialize(io_in, io_out)
         @in = io_in
         @out = io_out

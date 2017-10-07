@@ -3,4 +3,7 @@
 require 'gdb'
 require 'shellwords'
 
-GDB::GDB.new(Shellwords.join(ARGV)).interact
+argv = Shellwords.join(ARGV)
+Process.setproctitle('gdb-ruby ' + argv)
+
+GDB::GDB.new(argv).interact

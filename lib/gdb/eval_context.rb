@@ -3,8 +3,16 @@ require 'pry'
 module GDB
   # For evaluation ruby code in gdb.
   class EvalContext
-    attr_reader :gdb # @return [GDB::GDB]
+    # @return [GDB::GDB] The gdb instance.
+    attr_reader :gdb
 
+    # Instantiate a {EvalContext} object.
+    #
+    # Each {GDB::GDB} should have exactly one {EvalContext}
+    # for evaluating Ruby.
+    #
+    # @param [GDB::GDB] gdb
+    #   The gdb instance.
     def initialize(gdb)
       @gdb = gdb
     end

@@ -13,6 +13,17 @@ module GDB
     # Absolute path to python scripts.
     SCRIPTS_PATH = File.join(__dir__, 'scripts').freeze
 
+    # To launch a gdb instance.
+    #
+    # @param [String] arguments
+    #   The command line arguments to pass to gdb. See examples.
+    #
+    # @param [String] gdb
+    #   Name of gdb.
+    #
+    # @example
+    #   gdb = GDB::GDB.new('-q -nh bash')
+    #   gdb = GDB::GDB.new('arm.elf', gdb: 'gdb-multiarch')
     def initialize(arguments, gdb: 'gdb')
       arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')}" + ' ' + arguments # XXX
       @tube = spawn(gdb + ' ' + arguments)
@@ -237,6 +248,9 @@ module GDB
 
     private
 
+    # Raise {GDBError} if process is not running.
+    #
+    # @return [nil]
     def check_alive!
       raise GDBError, 'Process is not running' unless alive?
     end
