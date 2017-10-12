@@ -120,7 +120,7 @@ the FAT
 
   it 'interact' do
     hook_stdin_out('b main', 'run', 'quit') do
-      @new_gdb.call('amd64.elf') { |gdb| gdb.interact }
+      @new_gdb.call('amd64.elf', &:interact)
       expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) b main
@@ -130,6 +130,15 @@ Starting program: #{File.realpath(@binpath['amd64.elf'])}
 
 Breakpoint 1, 0x000000000040062a in main ()
 (gdb) quit
+      EOS
+    end
+    # test for issue #2
+    hook_stdin_out('set prompt gdb>', 'quit', prompt: '') do
+      @new_gdb.call('amd64.elf', &:interact)
+      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) set prompt gdb>
+gdb>quit
       EOS
     end
   end

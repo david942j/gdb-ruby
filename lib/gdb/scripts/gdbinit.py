@@ -18,6 +18,7 @@ class GDBRuby():
     def hook_gdb_prompt(self):
         # don't hook twice
         if gdb.prompt_hook == self._prompt_hook: return
+        self.gdbruby_prompt = '(gdb-ruby) '
         self._original_hook = gdb.prompt_hook
         gdb.prompt_hook = self._prompt_hook
 
@@ -26,10 +27,10 @@ class GDBRuby():
 
     def _prompt_hook(self, current_prompt):
         if self._original_hook == None:
-            org = '(gdb) '
+            org = current_prompt.replace(self.gdbruby_prompt, '')
         else:
             org = self._original_hook(current_prompt)
-        return '(gdb-ruby) ' + org
+        return self.gdbruby_prompt + org
 
 __commands__ = []
 def register_command(cls):
