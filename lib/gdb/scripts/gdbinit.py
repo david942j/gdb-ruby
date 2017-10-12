@@ -1,5 +1,7 @@
 import gdb
-import signal
+
+import random
+import string
 
 class GDBRuby():
     def __init__(self):
@@ -11,6 +13,7 @@ class GDBRuby():
         gdb.execute("set print elements 0")
         gdb.execute("set print pretty on")
         self.hook_gdb_prompt()
+        print('GDBRuby:' + self.gdbruby_prompt)
 
     '''
     Hook gdb prompt
@@ -18,18 +21,22 @@ class GDBRuby():
     def hook_gdb_prompt(self):
         # don't hook twice
         if gdb.prompt_hook == self._prompt_hook: return
+        self.gdbruby_prompt = self._gen_prompt()
         self._original_hook = gdb.prompt_hook
         gdb.prompt_hook = self._prompt_hook
 
-    def resume_prompt(self):
-        gdb.prompt_hook = self._original_hook
+    # private
 
     def _prompt_hook(self, current_prompt):
         if self._original_hook == None:
-            org = '(gdb) '
+            org = current_prompt.replace(self.gdbruby_prompt, '')
         else:
             org = self._original_hook(current_prompt)
-        return '(gdb-ruby) ' + org
+        return self.gdbruby_prompt + org
+
+    def _gen_prompt(self):
+        rnd = ''.join([random.choice(string.ascii_lowercase) for i in range(8)])
+        return '(gdb-ruby-%s)' % rnd
 
 __commands__ = []
 def register_command(cls):

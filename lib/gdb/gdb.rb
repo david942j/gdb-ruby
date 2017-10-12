@@ -27,8 +27,9 @@ module GDB
     def initialize(arguments, gdb: 'gdb')
       arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')}" + ' ' + arguments # XXX
       @tube = spawn(gdb + ' ' + arguments)
-      @prompt = '(gdb-ruby) '
-      @tube.unget(@tube.readuntil(@prompt))
+      pre = @tube.readuntil('GDBRuby:')
+      @prompt = @tube.readuntil("\n").strip
+      @tube.unget(pre)
     end
 
     # Execute a command in gdb.
