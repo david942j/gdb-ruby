@@ -24,6 +24,7 @@ describe GDB::GDB do
       expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
 Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
+      expect(gdb.exec('invalid command')).to eq 'Undefined command: "invalid".  Try "help".'
     end
 
     @new_gdb.call('amd64.pie.strip.elf') do |gdb|

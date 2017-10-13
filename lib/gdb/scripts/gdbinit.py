@@ -2,6 +2,7 @@ import gdb
 
 import random
 import string
+import sys
 
 class GDBRuby():
     def __init__(self):
@@ -53,6 +54,15 @@ class GDBRubyCommand(gdb.Command):
 
     def invoke(self, args, _from_tty):
         print("gdb-ruby> " + self.klass._cmdline_ + ' ' + args)
+        while True:
+            cmd = raw_input() if sys.version_info.major == 2 else input()
+            if cmd == 'END':
+                break
+            try:
+                res = gdb.execute(cmd, from_tty=True, to_string=True)
+            except gdb.error as e:
+                res = str(e)
+            sys.stdout.write(res + gdbruby.gdbruby_prompt)
 
 @register_command
 class RubyCommand():

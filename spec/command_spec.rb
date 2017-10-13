@@ -27,22 +27,27 @@ describe 'command' do
                    'quit') do
       allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n").split("\n").reject(&:empty?).join("\n")).to eq <<-EOS.strip
+      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
+
 Syntax: ruby <ruby code>
+
 Examples:
     ruby p 'abcd'
     # "abcd"
+
 Use gdb:
     ruby puts gdb.break('main')
     # Breakpoint 1 at 0x41eed0
+
 Method defined will remain in context:
     ruby def a(b); b * b; end
     ruby p a(9)
     # 81
+
 (gdb) ruby puts 123
 123
 (gdb) ruby gdb.break("main")
@@ -51,6 +56,18 @@ Method defined will remain in context:
 rip            0x40062a\t0x40062a <main+4>
 (gdb) ruby p a
 NameError: undefined local variable or method `a' for #<GDB::EvalContext>
+(gdb) quit
+      EOS
+    end
+  end
+
+  it 'python exception' do
+    hook_stdin_out('ruby puts gdb.exec("invalid command")', 'quit') do
+      @new_gdb.call.interact
+      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) ruby puts gdb.exec("invalid command")
+Undefined command: "invalid".  Try "help".
 (gdb) quit
       EOS
     end
@@ -67,15 +84,18 @@ NameError: undefined local variable or method `a' for #<GDB::EvalContext>
       end
       @new_gdb.call.interact
       expect(enter_pry).to be true
-      expect($stdout.string.gsub("\r\n", "\n").split("\n").reject(&:empty?).join("\n")).to eq <<-EOS.strip
+      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) help pry
 Enter Ruby interactive shell.
 Everything works like a charm!
+
 Syntax: pry
+
 Example:
     pry
     # [1] pry(#<GDB::EvalContext>)>
+
 (gdb) pry
 (gdb) quit
       EOS

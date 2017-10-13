@@ -283,6 +283,8 @@ module GDB
       rescue StandardError, ScriptError => e
         $stdout.puts("#{e.class}: #{e}")
       end
+      @tube.puts('END')
+      @tube.readuntil(@prompt)
       nil
     end
 
