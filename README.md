@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/david942j/gdb-ruby.svg?branch=master)](https://travis-ci.org/david942j/gdb-ruby)
+[![Gem Version](https://badge.fury.io/rb/gdb.svg)](https://badge.fury.io/rb/gdb)
 [![Code Climate](https://codeclimate.com/github/david942j/gdb-ruby/badges/gpa.svg)](https://codeclimate.com/github/david942j/gdb-ruby)
 [![Issue Count](https://codeclimate.com/github/david942j/gdb-ruby/badges/issue_count.svg)](https://codeclimate.com/github/david942j/gdb-ruby)
 [![Test Coverage](https://codeclimate.com/github/david942j/gdb-ruby/badges/coverage.svg)](https://codeclimate.com/github/david942j/gdb-ruby/coverage)

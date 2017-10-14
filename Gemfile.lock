@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gdb (0.2.0)
+    gdb (0.2.1)
       pry (~> 0.11)
 
 GEM
