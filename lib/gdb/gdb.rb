@@ -29,7 +29,7 @@ module GDB
       @tube = spawn(gdb + ' ' + arguments)
       pre = @tube.readuntil('GDBRuby:')
       @prompt = @tube.readuntil("\n").strip
-      @tube.unget(pre)
+      @tube.unget(pre + @tube.readuntil(@prompt))
     end
 
     # Execute a command in gdb.
@@ -270,10 +270,12 @@ module GDB
     #
     # @return [String]
     def output_hook(output)
-      return output.gsub(@prompt, '') unless output.start_with?(COMMAND_PREFIX)
+      idx = output.index(COMMAND_PREFIX)
+      return yield output.gsub(@prompt, '') if idx.nil?
+      yield output.slice!(0, idx)
       cmd, args = output.slice(COMMAND_PREFIX.size..-1).split(' ', 2)
       # only support ruby and pry now.
-      return output unless %w[ruby pry].include?(cmd)
+      return yield output unless %w[ruby pry].include?(cmd)
       args = 'send(:invoke_pry)' if cmd == 'pry'
       # gdb by default set tty
       # hack it
