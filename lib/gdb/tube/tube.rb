@@ -70,10 +70,14 @@ module GDB
       # Enter interactive mode.
       #
       # @param [Proc] output_hook
-      #   Called before flush the output to +$stdout+.
+      #   String received from output would be passed into this proc.
+      #   Only data yielded by this proc would be flushed to +$stdout+.
+      #
+      #   Use <tt>lambda { |s, &block| block.call(s) }</tt> or +:tap.to_proc+ (since Ruby 2.2)
+      #   for a do-nothing hook.
       #
       # @return [void]
-      def interact(output_hook = nil)
+      def interact(output_hook)
         @out.ungetc(@buffer.get)
         loop do
           io, = IO.select([$stdin, @out])
@@ -81,8 +85,7 @@ module GDB
           next unless io.include?(@out)
           begin
             recv = @out.readpartial(READ_SIZE)
-            recv = output_hook.call(recv) if output_hook
-            $stdout.write(recv) if recv
+            output_hook.call(recv) { |str| $stdout.write(str) }
             @out.ungetc(@buffer.get) unless @buffer.empty?
           rescue Errno::EIO
             break
