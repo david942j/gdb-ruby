@@ -18,9 +18,7 @@ module GDB
       def read_integer(io, byte, sign)
         str = io.read(byte).reverse # little endian
         val = str.bytes.reduce(0) { |sum, b| sum * 256 + b }
-        if sign == :signed && val >= (1 << (8 * byte - 1))
-          val -= 1 << (8 * byte)
-        end
+        val -= 1 << (8 * byte) if sign == :signed && val >= (1 << (8 * byte - 1))
         val
       end
 

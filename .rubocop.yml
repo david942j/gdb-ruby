@@ -2,6 +2,9 @@ AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
 
+Layout/EmptyLinesAroundArguments:
+  Enabled: false
+
 Layout/EndOfLine:
   EnforcedStyle: lf
 
