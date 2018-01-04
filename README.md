@@ -104,8 +104,8 @@ gdb.run('-c "echo cat"')
 rdi = gdb.reg(:rdi)
 #=> 3
 rsi = gdb.reg(:rsi)
-argv = gdb.readm(rsi, rdi, as: :uint64)
-argv.map{ |c|'0x%x' % c }
+argv = gdb.readm(rsi, rdi, as: :u64)
+argv.map { |c| '0x%x' % c }
 #=> ['0x7fffffffe61b', '0x7fffffffe625', '0x7fffffffe628']
 
 # 3. overwrite argv[2]'s 'cat' to 'FAT'

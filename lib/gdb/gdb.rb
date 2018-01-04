@@ -1,11 +1,11 @@
 require 'io/console'
+require 'memory_io'
 require 'pty'
 require 'readline'
 
 require 'gdb/eval_context'
 require 'gdb/gdb_error'
 require 'gdb/tube/tube'
-require 'gdb/type_io'
 
 module GDB
   # For launching a gdb process.
@@ -156,19 +156,35 @@ module GDB
 
     # Read current process's memory.
     #
-    # See {TypeIO#read} for details.
+    # @param [Integer, String] addr
+    #   Address to start to read.
+    #   +addr+ can be a string like 'heap+0x10'.
+    #   Supported variables are names in /proc/$pid/maps such as +heap/libc/stack/ld+.
     #
-    # @param [Mixed] args
-    #   See {TypeIO#read}.
+    # @param [Integer] num_elements
+    #   Number of elements to read.
+    #   If +num_elements+ equals to 1, an object read will be returned.
+    #   Otherwise, an array with size +num_elements+ will be returned.
     #
-    # @return [Object]
-    #   See {TypeIO#read}.
+    # @option [Symbol, Class] as
+    #   Types that supported by [MemoryIO](https://github.com/david942j/memory_io).
+    #
+    # @return [Object, Array<Object>]
+    #   Return types are decided by value of +num_elements+ and option +as+.
     #
     # @yieldparam [IO] io
-    #   See {TypeIO#read}.
+    #   The +IO+ object that points to +addr+,
+    #   read from it.
     #
     # @yieldreturn [Object]
-    #   See {TypeIO#read}.
+    #   Whatever you read from +io+.
+    #
+    # @example
+    #   gdb = GDB::GDB.new('spec/binaries/amd64.elf')
+    #   gdb.break('main')
+    #   gdb.run
+    #   gdb.read_memory('amd64.elf', 4)
+    #   #=> "\x7fELF"
     #
     # @example
     #   # example of fetching argv
@@ -179,41 +195,47 @@ module GDB
     #   #=> "\x7fELF"
     #   argc = gdb.register(:rdi)
     #   #=> 4
-    #   args = gdb.read_memory(gdb.register(:rsi), argc, as: :uint64)
+    #   args = gdb.read_memory(gdb.register(:rsi), argc, as: :u64)
     #   Array.new(3) do |i|
     #     gdb.read_memory(args[i + 1], 1) do |m|
     #       str = ''
-    #       str << m.read(1) until str.end_with?("\x00")
+    #       loop do
+    #         c = m.read(1)
+    #         break if c == "\x00"
+    #         str << c
+    #       end
     #       str
     #     end
     #   end
-    #   #=> ["pusheen\x00", "the\x00", "cat\x00"]
+    #   #=> ["pusheen", "the", "cat"]
     #
-    #   # or, use our build-in types listed in {TypeIO::TYPES}
-    #   gdb.read_memory(args[1], 3, as: :cstring)
-    #   #=> ["pusheen\x00", "the\x00", "cat\x00"]
-    def read_memory(*args, &block)
+    #   # or, use our build-in types of gem +memory_io+.
+    #   gdb.read_memory(args[1], 3, as: :c_str)
+    #   #=> ["pusheen", "the", "cat"]
+    def read_memory(addr, num_elements, options = {}, &block)
       check_alive! # this would set @pid
-      File.open("/proc/#{@pid}/mem", 'rb') do |f|
-        ::GDB::TypeIO.new(f).read(*args, &block)
-      end
+      options[:as] = block if block_given?
+      MemoryIO.attach(@pid).read(addr, num_elements, **options)
     end
     alias readm read_memory
 
-    # Write a string to process at specific address.
+    # Write an object to process at specific address.
     #
-    # @param [Integer] addr
+    # @param [Integer, String] addr
     #   Target address.
-    # @param [String] str
-    #   String to be written.
+    #   +addr+ can be a string like 'heap+0x10'.
+    #   Supported variables are names in +/proc/$pid/maps+ such as +heap/libc/stack/ld+.
+    # @param [Objects, Array<Objects>] objects
+    #   Objects to be written.
     #
-    # @return [Integer]
-    #   Bytes written.
-    def write_memory(addr, str)
+    # @option [Symbol, Class] as
+    #   See {#read_memory}.
+    #
+    # @return [void]
+    def write_memory(addr, objects, options = {}, &block)
       check_alive! # this would set @pid
-      File.open("/proc/#{@pid}/mem", 'wb') do |f|
-        ::GDB::TypeIO.new(f).write(addr, str)
-      end
+      options[:as] = block if block_given?
+      MemoryIO.attach(@pid).write(addr, objects, **options)
     end
     alias writem write_memory
 
@@ -251,7 +273,7 @@ module GDB
 
     # Raise {GDBError} if process is not running.
     #
-    # @return [nil]
+    # @return [void]
     def check_alive!
       raise GDBError, 'Process is not running' unless alive?
     end

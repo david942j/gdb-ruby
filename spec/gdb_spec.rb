@@ -85,20 +85,25 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       gdb.b('main')
       gdb.run('pusheen the cat')
       expect(gdb.read_memory(0x400000, 4)).to eq "\x7fELF"
+      expect(gdb.read_memory('amd64.elf', 4)).to eq "\x7fELF"
       # Lets fetch argv
       argc = gdb.register(:rdi)
-      args = gdb.read_memory(gdb.register(:rsi), argc, as: :uint64)
+      args = gdb.read_memory(gdb.register(:rsi), argc, as: :u64)
       ary = Array.new(argc) do |i|
         next 'argv0' if i == 0
         gdb.read_memory(args[i], 1) do |m|
           str = ''
-          str << m.read(1) until str.end_with?("\x00")
-          str[0..-2]
+          loop do
+            c = m.read(1)
+            break if c == "\x00"
+            str << c
+          end
+          str
         end
       end
       expect(ary).to eq %w[argv0 pusheen the cat]
 
-      expect(gdb.read_memory(args[1], 3, as: :cstring)).to eq ["pusheen\x00", "the\x00", "cat\x00"]
+      expect(gdb.read_memory(args[1], 3, as: :c_str)).to eq %w[pusheen the cat]
     end
   end
 
@@ -106,7 +111,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
       gdb.r('pusheen "the cat"')
-      argv2 = gdb.read_memory(gdb.register(:rsi) + 16, 1, as: :uint64)
+      argv2 = gdb.read_memory(gdb.register(:rsi) + 16, 1, as: :u64)
       expect(gdb.read_memory(argv2, 7)).to eq 'the cat'
       gdb.write_memory(argv2 + 4, 'FAT')
       pid = gdb.pid
