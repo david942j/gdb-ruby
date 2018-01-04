@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gdb (0.2.1)
+    gdb (0.3.0)
       memory_io (~> 0.1.0)
       pry (~> 0.11)
 
