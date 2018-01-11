@@ -8,11 +8,16 @@
 
 # GDB-Ruby
 
-It's time for Ruby lovers to use Ruby in gdb, and... gdb in Ruby!
+It's time for Ruby lovers to use Ruby in gdb and, gdb in Ruby!
+
+Achieve two things in one gem:
+
+1. Launch Ruby interactive shell (pry) in gdb.
+2. A gdb Ruby-binding, i.e. communiate with gdb in a Ruby script.
 
 # Use Ruby in gdb
 
-We provide a binary `gdb-ruby` with usage exactly same as normal gdb,
+We provide a binary `gdb-ruby` (a Ruby script actually) with usage exactly same as normal gdb,
 while has two extra commands: `ruby` and `pry`!
 
 See examples below:
@@ -51,14 +56,14 @@ Example:
 
 ## Integrate with other gdb extensions
 
-Completely NO effort if you want to use **gdb-ruby** with other gdb extension.
+Completely *NO* effort if you want to use **gdb-ruby** with other gdb extensions.
 
 For example, I usually use [gef](https://github.com/hugsy/gef) for my gdb.
 And everything works as usual when integrated with **gdb-ruby**:
 
 Launching with `$ gdb-ruby -q bash`
 
-![ruby-in-gef](https://i.imgur.com/WMxofSs.png)
+![ruby-in-gef](https://i.imgur.com/W8biCgP.png)
 
 # Use gdb in Ruby
 
@@ -138,6 +143,7 @@ gdb.interact
 # Installation
 
 Available on RubyGems.org!
+
 ```
 $ gem install gdb
 ```
@@ -151,6 +157,10 @@ bundle
 bundle exec rake
 ```
 
+# TODO
+* Add `rsource` command in gdb for sourcing Ruby scripts
+    - And automatically do `rsource ~/.gdbinit.rb` after gdb-ruby launched
+
 # Bugs & feedbacks
 
 Feel free to file an issue if you find any bugs.
@@ -158,5 +168,5 @@ Any feature requests and suggestions are welcome! :grimacing:
 
 # Growing up
 
-**gdb-ruby** is under developing, give it a star and [watching](https://github.com/david942j/gdb-ruby/subscription)
+**gdb-ruby** is under developing, give it a star and [watch](https://github.com/david942j/gdb-ruby/subscription)
 for latest updates!
