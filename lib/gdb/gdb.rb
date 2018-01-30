@@ -9,6 +9,10 @@ require 'gdb/tube/tube'
 
 module GDB
   # For launching a gdb process.
+  #
+  # @!macro [new] gdb_displayed
+  #   @return [String]
+  #     Returns what gdb displayed after executing this command.
   class GDB
     # Absolute path to python scripts.
     SCRIPTS_PATH = File.join(__dir__, 'scripts').freeze
@@ -37,8 +41,7 @@ module GDB
     # @param [String] cmd
     #   Command to be executed.
     #
-    # @return [String]
-    #   The execution result returned by gdb.
+    # @!macro gdb_displayed
     #
     # @example
     #   gdb = GDB::GDB.new('bash')
@@ -55,15 +58,14 @@ module GDB
 
     # Set break point.
     #
-    # This method some magic, see parameters or examples.
+    # This method does some magic, see examples.
     #
     # @param [Integer, String] point
     #   If +Integer+ is given, will be translated as set break point
     #   at address +point+, i.e. equivalent to +break *<integer>+.
     #   If +String+ is given, equivalent to invoke +execute("break <point>")+.
     #
-    # @return [String]
-    #   Returns what gdb displayed after set a break point.
+    # @!macro gdb_displayed
     #
     # @example
     #   gdb = GDB::GDB.new('bash')
@@ -84,8 +86,7 @@ module GDB
     # @param [String] args
     #   Arguments to pass to run command.
     #
-    # @return [String]
-    #   Returns what gdb displayed.
+    # @!macro gdb_displayed
     #
     # @example
     #   gdb = GDB::GDB.new('bash')
@@ -152,6 +153,35 @@ module GDB
     #   The pid of process. If process is not running, zero is returned.
     def pid
       @pid = python_p('gdb.selected_inferior().pid').to_i
+    end
+
+    # Execute +continue+ command.
+    #
+    # @!macro gdb_displayed
+    #
+    # @note
+    #   Beware of this method may block if no breakpoint properly set.
+    def continue
+      check_alive!
+      execute('continue')
+    end
+
+    # Execute +info+ command.
+    #
+    # @!macro gdb_displayed
+    #
+    # @example
+    #   gdb = GDB::GDB.new('spec/binaries/amd64.elf')
+    #   gdb.break('main')
+    #   gdb.run
+    #   puts gdb.info('proc stat')
+    #   # process 32537
+    #   # cmdline = '/home/gdb-ruby/spec/binaries/amd64.elf'
+    #   # cwd = '/home/gdb-ruby'
+    #   # exe = '/home/gdb-ruby/spec/binaries/amd64.elf'
+    #   gdb.close
+    def info(args = '')
+      execute('info ' + args)
     end
 
     # Read current process's memory.
@@ -243,6 +273,7 @@ module GDB
     #
     # @param [String] cmd
     #   python command.
+    #
     # @return [String]
     #   Execution result.
     def python_p(cmd)

@@ -8,7 +8,7 @@ describe GDB::GDB do
   before(:all) do
     @binpath = ->(f) { File.join('spec', 'binaries', f) }
     @new_gdb = lambda do |f, &block|
-      gdb = described_class.new('-q -nh ' + @binpath[f])
+      gdb = described_class.new('-q --nx ' + @binpath[f])
       block.call(gdb)
       gdb.close
     end
@@ -66,6 +66,16 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
     end
   end
 
+  it 'info' do
+    @new_gdb.call('amd64.elf') do |gdb|
+      gdb.b('main')
+      expect(gdb.info('b')).to eq <<-EOS.strip.gsub("\n", "\r\n")
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x000000000040062a <main+4>
+      EOS
+    end
+  end
+
   it 'text_base' do
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
@@ -115,7 +125,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       expect(gdb.read_memory(argv2, 7)).to eq 'the cat'
       gdb.write_memory(argv2 + 4, 'FAT')
       pid = gdb.pid
-      expect(gdb.execute('continue').lines.map(&:strip).join("\n")).to eq <<-EOS.strip
+      expect(gdb.continue.lines.map(&:strip).join("\n")).to eq <<-EOS.strip
 Continuing.
 pusheen
 the FAT
