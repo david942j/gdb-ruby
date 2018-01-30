@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.date          = Date.today.to_s
   s.summary       = 'GDB Ruby-binding and Ruby command in GDB'
   s.description   = <<-EOS
-It's time for Ruby lovers to use Ruby in gdb, and... gdb in Ruby!
+It's time for Ruby lovers to use Ruby in gdb, and gdb in Ruby!
   EOS
   s.license       = 'MIT'
   s.authors       = ['david942j']
@@ -24,9 +24,8 @@ It's time for Ruby lovers to use Ruby in gdb, and... gdb in Ruby!
   s.required_ruby_version = '>= 2.1.0'
 
   s.add_dependency 'pry', '~> 0.11'
-  s.add_dependency 'memory_io', '~> 0.1.0'
+  s.add_dependency 'memory_io', '~> 0.1.1'
 
-  s.add_development_dependency 'codeclimate-test-reporter', '~> 0.6'
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'rspec', '~> 3.7'
   s.add_development_dependency 'rubocop', '~> 0.52'
