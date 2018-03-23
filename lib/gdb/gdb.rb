@@ -344,7 +344,7 @@ module GDB
     end
 
     def eval_context
-      @context ||= ::GDB::EvalContext.new(self)
+      @eval_context ||= ::GDB::EvalContext.new(self)
     end
   end
 end

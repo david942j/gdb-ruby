@@ -11,6 +11,9 @@ Layout/EndOfLine:
 Layout/IndentHeredoc:
   Enabled: false
 
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
 

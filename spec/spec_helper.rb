@@ -11,7 +11,7 @@ end
 require 'io/wait'
 module Helpers
   # @param [Array<String>] ary
-  def hook_stdin_out(*ary, prompt: '(gdb) ', &block)
+  def hook_stdin_out(*ary, prompt: '(gdb) ')
     old_stdin = $stdin.dup
     old_stdout = $stdout.dup
     $stdin = StringIO.new
