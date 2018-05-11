@@ -99,6 +99,17 @@ Example:
 """
     _cmdline_ = 'pry'
 
+@register_command
+class RSourceCommand():
+    _doc_ = """Source a Ruby script.
+
+Syntax: rsource <file>
+
+Example:
+    rsource ~/.gdbinit.rb
+"""
+    _cmdline_ = 'rsource'
+
 
 if not 'gdbruby' in globals():
     [GDBRubyCommand(c) for c in __commands__]

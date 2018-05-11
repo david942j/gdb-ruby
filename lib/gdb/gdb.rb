@@ -321,15 +321,23 @@ module GDB
 
     # @param [String] output
     #
-    # @return [String]
+    # @yieldparam [String] output
+    # @yieldreturn [void]
+    #
+    # @return [void]
     def output_hook(output)
       idx = output.index(COMMAND_PREFIX)
       return yield output.gsub(@prompt, '') if idx.nil?
       yield output.slice!(0, idx)
       cmd, args = output.slice(COMMAND_PREFIX.size..-1).split(' ', 2)
       # only support ruby and pry now.
-      return yield output unless %w[ruby pry].include?(cmd)
-      args = 'send(:invoke_pry)' if cmd == 'pry'
+      return yield output unless %w[ruby pry rsource].include?(cmd)
+      args = case cmd
+             when 'pry' then '__send__(:invoke_pry)'
+             when 'rsource' then File.read(File.expand_path(args.strip))
+             else args
+             end
+      args = '__send__(:invoke_pry)' if cmd == 'pry'
       # gdb by default set tty
       # hack it
       `stty opost onlcr`

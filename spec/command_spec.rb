@@ -4,6 +4,7 @@ describe 'command' do
   before(:all) do
     @new_gdb = -> () do
       gdb = GDB::GDB.new('-q -nh spec/binaries/amd64.elf')
+      allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       # make gdb out more stable
       out = gdb.instance_variable_get(:@tube).instance_variable_get(:@out)
       org_method = out.method(:readpartial)
@@ -25,7 +26,6 @@ describe 'command' do
                    'info reg $rip',
                    'ruby p a', # raise error
                    'quit') do
-      allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       @new_gdb.call.interact
       expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
@@ -100,5 +100,30 @@ Example:
 (gdb) quit
       EOS
     end
+  end
+
+  it 'rsource' do
+    temp = Tempfile.new('test_tmp').tap do |f|
+      f.write(<<-RUBY)
+def method_after_rsource!
+end
+      RUBY
+      f.close
+    end
+    hook_stdin_out(
+      'ruby method_after_rsource!',
+      "rsource #{temp.path}",
+      'ruby method_after_rsource!',
+      'quit') do
+        @new_gdb.call.interact
+        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+(gdb) ruby method_after_rsource!
+NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
+(gdb) rsource #{temp.path}
+(gdb) ruby method_after_rsource!
+(gdb) quit
+        EOS
+      end
   end
 end

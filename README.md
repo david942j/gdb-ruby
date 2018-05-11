@@ -157,10 +157,6 @@ bundle
 bundle exec rake
 ```
 
-# TODO
-* Add `rsource` command in gdb for sourcing Ruby scripts
-    - And automatically do `rsource ~/.gdbinit.rb` after gdb-ruby launched
-
 # Bugs & feedbacks
 
 Feel free to file an issue if you find any bugs.
