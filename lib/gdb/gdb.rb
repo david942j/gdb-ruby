@@ -313,7 +313,7 @@ module GDB
 
     def spawn(cmd)
       output, input, @gdb_pid = PTY.spawn(cmd)
-      output.ioctl(TIOCSWINSZ, [*IO.console.winsize, 0, 0].pack('S*'))
+      IO.console && output.ioctl(TIOCSWINSZ, [*IO.console.winsize, 0, 0].pack('S*'))
       ::GDB::Tube::Tube.new(input, output)
     end
 
