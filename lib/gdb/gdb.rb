@@ -294,6 +294,7 @@ module GDB
     # @return [void]
     def close
       return if @tube.closed?
+
       @tube.close
       Process.wait(@gdb_pid)
       nil
@@ -328,10 +329,12 @@ module GDB
     def output_hook(output)
       idx = output.index(COMMAND_PREFIX)
       return yield output.gsub(@prompt, '') if idx.nil?
+
       yield output.slice!(0, idx)
       cmd, args = output.slice(COMMAND_PREFIX.size..-1).split(' ', 2)
       # only support ruby and pry now.
       return yield output unless %w[ruby pry rsource].include?(cmd)
+
       args = case cmd
              when 'pry' then '__send__(:invoke_pry)'
              when 'rsource' then File.read(File.expand_path(args.strip))

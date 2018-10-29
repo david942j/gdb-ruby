@@ -83,6 +83,7 @@ module GDB
           io, = IO.select([$stdin, @out])
           @in.write($stdin.readpartial(READ_SIZE)) if io.include?($stdin)
           next unless io.include?(@out)
+
           begin
             recv = @out.readpartial(READ_SIZE)
             output_hook.call(recv) { |str| $stdout.write(str) }

@@ -11,9 +11,6 @@ Layout/EndOfLine:
 Layout/IndentHeredoc:
   Enabled: false
 
-Lint/SplatKeywordArguments:
-  Enabled: false
-
 Metrics/AbcSize:
   Enabled: false
 

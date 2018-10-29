@@ -19,6 +19,7 @@ module GDB
       def <<(str)
         str = str.to_s.dup
         return self if str.empty?
+
         @data << str
         @size += str.size
         self
@@ -66,6 +67,7 @@ module GDB
       # @return [void]
       def unshift(str)
         return if str.nil? || str.empty?
+
         @data.unshift(str)
         @size += str.size
       end
