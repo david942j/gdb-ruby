@@ -20,14 +20,12 @@ describe 'command' do
     end
   end
 
-  it 'ruby' do
-    hook_stdin_out('help ruby', 'ruby puts 123',
-                   'ruby gdb.break("main")', 'ruby gdb.run',
-                   'info reg $rip',
-                   'ruby p a', # raise error
-                   'quit') do
-      @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+  describe 'ruby' do
+    it 'simple' do
+      hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) help ruby
 Evaluate a Ruby command.
@@ -50,14 +48,28 @@ Method defined will remain in context:
 
 (gdb) ruby puts 123
 123
+(gdb) ruby p a
+NameError: undefined local variable or method `a' for #<GDB::EvalContext>
+(gdb) quit
+        EOS
+      end
+    end
+
+    it 'run' do
+      linux_only!
+
+      hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
 rip            0x40062a\t0x40062a <main+4>
-(gdb) ruby p a
-NameError: undefined local variable or method `a' for #<GDB::EvalContext>
 (gdb) quit
-      EOS
+        EOS
+      end
     end
   end
 
