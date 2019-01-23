@@ -1,9 +1,17 @@
 #!/usr/bin/env ruby
 
-require 'gdb'
 require 'shellwords'
+
+require 'gdb'
+require 'gdb/util'
 
 argv = Shellwords.join(ARGV)
 Process.setproctitle('gdb-ruby ' + argv)
 
+gdb = ::GDB::Util.find_gdb
+if gdb.nil?
+  # No gdb installed
+  warn('[ERROR] No gdb installed in your system.')
+  exit 2
+end
 GDB::GDB.new(argv).interact

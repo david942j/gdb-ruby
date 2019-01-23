@@ -6,6 +6,7 @@ require 'readline'
 require 'gdb/eval_context'
 require 'gdb/gdb_error'
 require 'gdb/tube/tube'
+require 'gdb/util'
 
 module GDB
   # For launching a gdb process.
@@ -29,8 +30,11 @@ module GDB
     #   gdb = GDB::GDB.new('-q -nh bash')
     #   gdb = GDB::GDB.new('arm.elf', gdb: 'gdb-multiarch')
     def initialize(arguments, gdb: 'gdb')
+      gdb_bin = ::GDB::Util.which(gdb)
+      raise Errno::ENOENT, gdb if gdb_bin.nil?
+
       arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')}" + ' ' + arguments # XXX
-      @tube = spawn(gdb + ' ' + arguments)
+      @tube = spawn(gdb_bin + ' ' + arguments)
       pre = @tube.readuntil('GDBRuby:')
       @prompt = @tube.readuntil("\n").strip
       @tube.unget(pre + @tube.readuntil(@prompt))
