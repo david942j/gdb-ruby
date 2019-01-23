@@ -1,5 +1,7 @@
-require 'simplecov'
+require 'io/wait'
 require 'rspec'
+require 'simplecov'
+require 'tty/platform'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
   [SimpleCov::Formatter::HTMLFormatter]
@@ -8,8 +10,11 @@ SimpleCov.start do
   add_filter '/spec/'
 end
 
-require 'io/wait'
 module Helpers
+  def linux_only!
+    skip 'Linux only' unless TTY::Platform.new.linux?
+  end
+
   # @param [Array<String>] ary
   def hook_stdin_out(*ary, prompt: '(gdb) ')
     old_stdin = $stdin.dup

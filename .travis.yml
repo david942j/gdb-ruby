@@ -3,6 +3,7 @@ cache: bundler
 sudo: required
 os:
   - linux
+  - osx
 addons:
   apt:
     packages:
@@ -23,6 +24,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter; ./cc-test-reporter before-build; fi
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gdb; fi
   - gem update --system
   - gem install bundler
   - gem --version
