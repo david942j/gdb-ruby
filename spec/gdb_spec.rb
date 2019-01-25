@@ -6,6 +6,8 @@ require 'gdb/gdb'
 
 describe GDB::GDB do
   before(:all) do
+    linux_only!
+
     @binpath = ->(f) { File.join('spec', 'binaries', f) }
     @new_gdb = lambda do |f, &block|
       gdb = described_class.new('-q --nx ' + @binpath[f])

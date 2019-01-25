@@ -1,5 +1,10 @@
-require 'simplecov'
+require 'fileutils'
+require 'io/wait'
 require 'rspec'
+require 'securerandom'
+require 'simplecov'
+require 'tmpdir'
+require 'tty/platform'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
   [SimpleCov::Formatter::HTMLFormatter]
@@ -8,8 +13,11 @@ SimpleCov.start do
   add_filter '/spec/'
 end
 
-require 'io/wait'
 module Helpers
+  def linux_only!
+    skip 'Linux only' unless TTY::Platform.new.linux?
+  end
+
   # @param [Array<String>] ary
   def hook_stdin_out(*ary, prompt: '(gdb) ')
     old_stdin = $stdin.dup
@@ -50,6 +58,13 @@ module Helpers
     $stdin.close
     $stdin = old_stdin
     $stdout = old_stdout
+  end
+
+  def with_tempfile
+    filename = File.join(Dir.tmpdir, 'gdb-ruby-' + SecureRandom.hex(4))
+    yield filename
+  ensure
+    FileUtils.rm_f(filename)
   end
 end
 

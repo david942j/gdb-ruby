@@ -3,6 +3,7 @@ cache: bundler
 sudo: required
 os:
   - linux
+  - osx
 addons:
   apt:
     packages:
@@ -18,11 +19,13 @@ branches:
 matrix:
   allow_failures:
     - rvm: ruby-head
-
+env:
+  - TERM=vt100 # prevent gdb output escape strings
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter; chmod +x ./cc-test-reporter; ./cc-test-reporter before-build; fi
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gdb; fi
   - gem update --system
   - gem install bundler
   - gem --version

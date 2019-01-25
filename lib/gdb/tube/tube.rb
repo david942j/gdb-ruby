@@ -88,7 +88,7 @@ module GDB
             recv = @out.readpartial(READ_SIZE)
             output_hook.call(recv) { |str| $stdout.write(str) }
             @out.ungetc(@buffer.get) unless @buffer.empty?
-          rescue Errno::EIO
+          rescue Errno::EIO, EOFError
             break
           end
         end

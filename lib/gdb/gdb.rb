@@ -314,11 +314,9 @@ module GDB
       raise GDBError, 'Process is not running' unless alive?
     end
 
-    TIOCSWINSZ = 0x5414
-
     def spawn(cmd)
       output, input, @gdb_pid = PTY.spawn(cmd)
-      IO.console && output.ioctl(TIOCSWINSZ, [*IO.console.winsize, 0, 0].pack('S*'))
+      IO.console && output.winsize = IO.console.winsize
       ::GDB::Tube::Tube.new(input, output)
     end
 

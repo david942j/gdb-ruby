@@ -20,14 +20,12 @@ describe 'command' do
     end
   end
 
-  it 'ruby' do
-    hook_stdin_out('help ruby', 'ruby puts 123',
-                   'ruby gdb.break("main")', 'ruby gdb.run',
-                   'info reg $rip',
-                   'ruby p a', # raise error
-                   'quit') do
-      @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+  describe 'ruby' do
+    it 'simple' do
+      hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) help ruby
 Evaluate a Ruby command.
@@ -50,14 +48,28 @@ Method defined will remain in context:
 
 (gdb) ruby puts 123
 123
+(gdb) ruby p a
+NameError: undefined local variable or method `a' for #<GDB::EvalContext>
+(gdb) quit
+        EOS
+      end
+    end
+
+    it 'run' do
+      linux_only!
+
+      hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
 rip            0x40062a\t0x40062a <main+4>
-(gdb) ruby p a
-NameError: undefined local variable or method `a' for #<GDB::EvalContext>
 (gdb) quit
-      EOS
+        EOS
+      end
     end
   end
 
@@ -103,27 +115,26 @@ Example:
   end
 
   it 'rsource' do
-    temp = Tempfile.new('test_tmp').tap do |f|
-      f.write(<<-RUBY)
+    with_tempfile do |temp|
+      IO.binwrite(temp, <<-RUBY)
 def method_after_rsource!
 end
       RUBY
-      f.close
-    end
-    hook_stdin_out(
-      'ruby method_after_rsource!',
-      "rsource #{temp.path}",
-      'ruby method_after_rsource!',
-      'quit') do
-        @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+      hook_stdin_out(
+        'ruby method_after_rsource!',
+        "rsource #{temp}",
+        'ruby method_after_rsource!',
+        'quit') do
+          @new_gdb.call.interact
+          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
-(gdb) rsource #{temp.path}
+(gdb) rsource #{temp}
 (gdb) ruby method_after_rsource!
 (gdb) quit
-        EOS
-      end
+          EOS
+        end
+    end
   end
 end
