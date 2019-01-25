@@ -115,27 +115,26 @@ Example:
   end
 
   it 'rsource' do
-    temp = Tempfile.new('test_tmp').tap do |f|
-      f.write(<<-RUBY)
+    with_tempfile do |temp|
+      IO.binwrite(temp, <<-RUBY)
 def method_after_rsource!
 end
       RUBY
-      f.close
-    end
-    hook_stdin_out(
-      'ruby method_after_rsource!',
-      "rsource #{temp.path}",
-      'ruby method_after_rsource!',
-      'quit') do
-        @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+      hook_stdin_out(
+        'ruby method_after_rsource!',
+        "rsource #{temp}",
+        'ruby method_after_rsource!',
+        'quit') do
+          @new_gdb.call.interact
+          expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
-(gdb) rsource #{temp.path}
+(gdb) rsource #{temp}
 (gdb) ruby method_after_rsource!
 (gdb) quit
-        EOS
-      end
+          EOS
+        end
+    end
   end
 end

@@ -1,6 +1,9 @@
+require 'fileutils'
 require 'io/wait'
 require 'rspec'
+require 'securerandom'
 require 'simplecov'
+require 'tmpdir'
 require 'tty/platform'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
@@ -55,6 +58,13 @@ module Helpers
     $stdin.close
     $stdin = old_stdin
     $stdout = old_stdout
+  end
+
+  def with_tempfile
+    filename = File.join(Dir.tmpdir, 'gdb-ruby-' + SecureRandom.hex(4))
+    yield filename
+  ensure
+    FileUtils.rm_f(filename)
   end
 end
 
