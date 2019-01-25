@@ -126,7 +126,7 @@ end
         'ruby method_after_rsource!',
         'quit') do
           @new_gdb.call.interact
-          expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
+          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to eq <<-EOS
 Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
