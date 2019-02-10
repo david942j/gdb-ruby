@@ -32,9 +32,11 @@ module GDB
         @buffer.get(n)
       end
 
-      # Clear current received buffer.
+      # Clear received data.
       #
-      # @return [void]
+      # @return [String]
+      #   The data cleared.
+      #   An empty string is returned if the buffer is already empty.
       def clear
         @buffer.get
       end
