@@ -15,7 +15,7 @@ module GDB
   #   @return [String]
   #     Returns what gdb displayed after executing this command.
   class GDB
-    # Absolute path to python scripts.
+    # Absolute path to the python scripts.
     SCRIPTS_PATH = File.join(__dir__, 'scripts').freeze
 
     # To launch a gdb instance.
@@ -55,12 +55,15 @@ module GDB
     #   gdb.execute('print $rsi')
     #   #=> "$1 = 0x7fffffffdef8"
     def execute(cmd)
+      # clear tube if not in interactive mode
+      @tube.clear unless interacting?
+
       @tube.puts(cmd)
       @tube.readuntil(@prompt).strip
     end
     alias exec execute
 
-    # Set break point.
+    # Set breakpoints.
     #
     # This method does some magic, see examples.
     #
@@ -85,10 +88,10 @@ module GDB
     end
     alias b break
 
-    # Run process.
+    # Run the process.
     #
     # @param [String] args
-    #   Arguments to pass to run command.
+    #   Arguments to pass to +run+ command.
     #
     # @!macro gdb_displayed
     #
@@ -102,7 +105,7 @@ module GDB
     #
     # @note
     #   If breakpoints are not set properly and cause gdb hangs,
-    #   this method will hang, too.
+    #   this method hangs as well.
     def run(args = '')
       execute('run ' + args)
     end
@@ -138,7 +141,7 @@ module GDB
     end
     alias code_base text_base
 
-    # Is process running?
+    # Is the process running?
     #
     # Actually judged by if {#pid} returns zero.
     #
@@ -154,7 +157,7 @@ module GDB
     # This method implemented by invoking +python print(gdb.selected_inferior().pid)+.
     #
     # @return [Integer]
-    #   The pid of process. If process is not running, zero is returned.
+    #   The pid of the process. If the process is not running, zero is returned.
     def pid
       @pid = python_p('gdb.selected_inferior().pid').to_i
     end
@@ -164,13 +167,16 @@ module GDB
     # @!macro gdb_displayed
     #
     # @note
-    #   Beware of this method may block if no breakpoint properly set.
+    #   This method may block the IO if no breakpoints are properly set.
     def continue
       check_alive!
       execute('continue')
     end
 
     # Execute +info+ command.
+    #
+    # @param [String] args
+    #   Arguments to pass to +info+ command.
     #
     # @!macro gdb_displayed
     #
@@ -285,10 +291,13 @@ module GDB
     end
 
     # Enter gdb interactive mode.
-    # Gdb will be closed after interaction.
+    # GDB will be closed after interaction.
     #
     # @return [void]
     def interact
+      return if interacting?
+
+      @interacting = true
       $stdin.raw { @tube.interact(method(:output_hook)) }
       close
     end
@@ -306,6 +315,10 @@ module GDB
     alias quit close
 
     private
+
+    def interacting?
+      defined?(@interacting)
+    end
 
     # Raise {GDBError} if process is not running.
     #

@@ -54,6 +54,11 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
     @new_gdb.call('amd64.elf') do |gdb|
       expect(gdb.run('1111').lines[1].strip).to eq '1111'
     end
+
+    # issue#37
+    @new_gdb.call('amd64.elf') do |gdb|
+      expect(gdb.run('A' * 200)).to include('Starting') # only check it not hangs
+    end
   end
 
   it 'register' do
