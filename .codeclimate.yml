@@ -11,5 +11,3 @@ checks:
   method-complexity:
     config:
       threshold: 12
-exclude_patterns:
-- "spec/"

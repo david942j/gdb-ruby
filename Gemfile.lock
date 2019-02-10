@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gdb (0.3.0)
+    gdb (1.0.0)
       memory_io (~> 0.1.1)
       pry (~> 0.11)
 
@@ -10,7 +10,7 @@ GEM
   specs:
     ast (2.4.0)
     coderay (1.1.2)
-    dentaku (3.2.1)
+    dentaku (3.3.0)
     diff-lcs (1.3)
     docile (1.3.1)
     jaro_winkler (1.5.2)

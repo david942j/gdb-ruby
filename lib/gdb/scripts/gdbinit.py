@@ -36,7 +36,7 @@ class GDBRuby():
         return self.gdbruby_prompt + org
 
     def _gen_prompt(self):
-        rnd = ''.join([random.choice(string.ascii_lowercase) for i in range(8)])
+        rnd = ''.join([random.choice(string.ascii_lowercase) for i in range(20)])
         return '(gdb-ruby-%s)' % rnd
 
 __commands__ = []
