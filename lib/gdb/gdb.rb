@@ -55,6 +55,9 @@ module GDB
     #   gdb.execute('print $rsi')
     #   #=> "$1 = 0x7fffffffdef8"
     def execute(cmd)
+      # clear tube if not in interactive mode
+      @tube.clear unless interacting?
+
       @tube.puts(cmd)
       @tube.readuntil(@prompt).strip
     end
@@ -102,7 +105,7 @@ module GDB
     #
     # @note
     #   If breakpoints are not set properly and cause gdb hangs,
-    #   this method will hang, too.
+    #   this method hangs as well.
     def run(args = '')
       execute('run ' + args)
     end
@@ -164,7 +167,7 @@ module GDB
     # @!macro gdb_displayed
     #
     # @note
-    #   Beware of this method may block if no breakpoint properly set.
+    #   This method may block the IO if no breakpoints are properly set.
     def continue
       check_alive!
       execute('continue')
@@ -289,6 +292,9 @@ module GDB
     #
     # @return [void]
     def interact
+      return if interacting?
+
+      @interacting = true
       $stdin.raw { @tube.interact(method(:output_hook)) }
       close
     end
@@ -306,6 +312,10 @@ module GDB
     alias quit close
 
     private
+
+    def interacting?
+      defined?(@interacting)
+    end
 
     # Raise {GDBError} if process is not running.
     #

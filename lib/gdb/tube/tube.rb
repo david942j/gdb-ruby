@@ -32,6 +32,13 @@ module GDB
         @buffer.get(n)
       end
 
+      # Clear current received buffer.
+      #
+      # @return [void]
+      def clear
+        @buffer.get
+      end
+
       # Receive from +io+ until string +str+ appears.
       #
       # @param [String] str
@@ -63,8 +70,10 @@ module GDB
       #
       # @return [void]
       def puts(data)
+        return data.split("\n").each(&method(:puts)) if data.strip.include?("\n")
+
         @in.puts(data)
-        readuntil(data)
+        readuntil("\n")
       end
 
       # Enter interactive mode.
