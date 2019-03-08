@@ -2,9 +2,6 @@ AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
 
-Layout/EmptyLinesAroundArguments:
-  Enabled: false
-
 Layout/EndOfLine:
   EnforcedStyle: lf
 
@@ -31,10 +28,4 @@ Metrics/MethodLength:
   Enabled: false
 
 Naming/UncommunicativeMethodParamName:
-  Enabled: false
-
-Rails:
-  Enabled: false
-
-Style/PercentLiteralDelimiters:
   Enabled: false
