@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gdb/tube/buffer'
 
 module GDB

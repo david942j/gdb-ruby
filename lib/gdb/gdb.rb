@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'io/console'
 require 'memory_io'
 require 'pty'
@@ -333,7 +335,7 @@ module GDB
       ::GDB::Tube::Tube.new(input, output)
     end
 
-    COMMAND_PREFIX = 'gdb-ruby> '.freeze
+    COMMAND_PREFIX = 'gdb-ruby> '
 
     # @param [String] output
     #
