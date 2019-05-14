@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GDB
   # Defines utility methods.
   module Util

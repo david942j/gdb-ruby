@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # GDB - gdb wrapper in ruby
 #
 # @author david942j
