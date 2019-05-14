@@ -25,8 +25,7 @@ describe 'command' do
       hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
-Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
 (gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
@@ -61,8 +60,7 @@ NameError: undefined local variable or method `a' for #<GDB::EvalContext>
       hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
-Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
@@ -76,8 +74,7 @@ rip            0x40062a\t0x40062a <main+4>
   it 'python exception' do
     hook_stdin_out('ruby puts gdb.exec("invalid command")', 'quit') do
       @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
-Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
 (gdb) ruby puts gdb.exec("invalid command")
 Undefined command: "invalid".  Try "help".
 (gdb) quit
@@ -96,8 +93,7 @@ Undefined command: "invalid".  Try "help".
       end
       @new_gdb.call.interact
       expect(enter_pry).to be true
-      expect($stdout.string.gsub("\r\n", "\n")).to eq <<-EOS
-Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
 (gdb) help pry
 Enter Ruby interactive shell.
 Everything works like a charm!
@@ -126,8 +122,7 @@ end
         'ruby method_after_rsource!',
         'quit') do
           @new_gdb.call.interact
-          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to eq <<-EOS
-Reading symbols from spec/binaries/amd64.elf...(no debugging symbols found)...done.
+          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to include(<<-EOS)
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
 (gdb) rsource #{temp}
