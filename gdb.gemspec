@@ -31,7 +31,7 @@ Achieve two things in one gem:
   s.add_dependency 'pry', '~> 0.11'
   s.add_dependency 'memory_io', '~> 0.1.1'
 
-  s.add_development_dependency 'rake', '~> 12.3'
+  s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.8'
   s.add_development_dependency 'rubocop', '~> 0.60'
   s.add_development_dependency 'simplecov', '~> 0.15'
