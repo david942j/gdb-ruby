@@ -29,7 +29,7 @@ Achieve two things in one gem:
   s.required_ruby_version = '>= 2.3'
 
   s.add_dependency 'pry', '~> 0.11'
-  s.add_dependency 'memory_io', '~> 0.1.1'
+  s.add_dependency 'memory_io', '~> 0.2'
 
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.8'
