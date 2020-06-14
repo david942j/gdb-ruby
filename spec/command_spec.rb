@@ -88,7 +88,7 @@ Undefined command: "invalid".  Try "help".
     hook_stdin_out('help pry', 'pry', 'quit') do
       enter_pry = false
       allow($stdin).to receive(:cooked) do
-        expect(Pry.config.history.file).to eq '~/.gdb-pry_history'
+        expect(Pry.config.history_file).to eq File.expand_path('~/.gdb-pry_history')
         enter_pry = true
       end
       @new_gdb.call.interact
