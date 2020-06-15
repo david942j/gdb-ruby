@@ -25,11 +25,11 @@ module GDB
     #
     # @return [void]
     def invoke_pry
-      org = Pry.config.history.file
+      org = Pry.config.history_file
       # this has no effect if gdb is launched by pry
-      Pry.config.history.file = '~/.gdb-pry_history'
+      Pry.config.history_file = File.expand_path('~/.gdb-pry_history')
       $stdin.cooked { pry }
-      Pry.config.history.file = org
+      Pry.config.history_file = org
     end
   end
 end
