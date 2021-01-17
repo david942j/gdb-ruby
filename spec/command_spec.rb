@@ -60,11 +60,11 @@ NameError: undefined local variable or method `a' for #<GDB::EvalContext>
       hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+        expect($stdout.string.gsub("\r\n", "\n").gsub("\t", ' ' * 12)).to include(<<-EOS)
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
-rip            0x40062a\t0x40062a <main+4>
+rip            0x40062a            0x40062a <main+4>
 (gdb) quit
         EOS
       end
