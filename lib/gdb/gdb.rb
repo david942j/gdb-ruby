@@ -35,8 +35,8 @@ module GDB
       gdb_bin = ::GDB::Util.which(gdb)
       raise Errno::ENOENT, gdb if gdb_bin.nil?
 
-      arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')}" + ' ' + arguments # XXX
-      @tube = spawn(gdb_bin + ' ' + arguments)
+      arguments = "--command=#{File.join(SCRIPTS_PATH, 'gdbinit.py')} #{arguments}" # XXX
+      @tube = spawn("#{gdb_bin} #{arguments}")
       pre = @tube.readuntil('GDBRuby:')
       @prompt = @tube.readuntil("\n").strip
       @tube.unget(pre + @tube.readuntil(@prompt))
@@ -109,7 +109,7 @@ module GDB
     #   If breakpoints are not set properly and cause gdb hangs,
     #   this method hangs as well.
     def run(args = '')
-      execute('run ' + args)
+      execute("run #{args}")
     end
     alias r run
 
@@ -193,7 +193,7 @@ module GDB
     #   # exe = '/home/gdb-ruby/spec/binaries/amd64.elf'
     #   gdb.close
     def info(args = '')
-      execute('info ' + args)
+      execute("info #{args}")
     end
 
     # Read current process's memory.

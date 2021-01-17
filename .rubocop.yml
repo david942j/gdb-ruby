@@ -12,6 +12,9 @@ Layout/LineLength:
   Enabled: true
   Max: 120
 
+Lint/Debugger:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
 
