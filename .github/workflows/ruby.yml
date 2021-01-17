@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [ubuntu, macos]
+        ruby-version: ['2.6', '2.7', head]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Install apt packages
+      run: sudo apt update && sudo apt install -yy gdb
+    - name: Run tests
+      run: bundle exec rake
+      env:
+        TERM: vt100 # prevent gdb output escape strings
+    - name: Publish code coverage
+      if: ${{ success() && runner.os == 'Linux' }}
+      uses: paambaati/codeclimate-action@v2.7.5
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
