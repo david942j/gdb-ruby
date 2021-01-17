@@ -27,7 +27,7 @@ jobs:
          if [ "$RUNNER_OS" == "Linux" ]; then
            sudo apt update && sudo apt install -yy gdb
          elif [ "$RUNNER_OS" == "macOS" ]; then
-           brew update && brew install gdb
+           brew install gdb
          fi
          gdb --version
       shell: bash
