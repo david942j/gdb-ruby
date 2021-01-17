@@ -22,8 +22,14 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: Install apt packages
-      run: sudo apt update && sudo apt install -yy gdb
+    - name: Install packages
+      run: |
+         if [ "$RUNNER_OS" == "Linux" ]; then
+           sudo apt update && sudo apt install -yy gdb
+         elif [ "$RUNNER_OS" == "macOS" ]; then
+           brew update && brew install gdb
+         fi
+      shell: bash
     - name: Run tests
       run: bundle exec rake
       env:
