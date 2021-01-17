@@ -9,14 +9,14 @@ Gem::Specification.new do |s|
   s.name          = 'gdb'
   s.version       = ::GDB::VERSION
   s.date          = Date.today.to_s
-  s.summary       = 'GDB Ruby-binding and Ruby commands in GDB'
+  s.summary       = 'GDB Ruby-binding plus Ruby interactive shell in GDB'
   s.description   = <<-EOS
-It's time for Ruby lovers to use Ruby in gdb, and gdb in Ruby!
+It's time for Ruby lovers to use Ruby in gdb and gdb in Ruby!
 
 Achieve two things in one gem:
 
-1. Launch Ruby interactive shell (pry) in gdb.
-2. A gdb Ruby-binding, i.e. communiate with gdb in a Ruby script.
+1. Launching Ruby interactive shell (pry) in gdb.
+2. gdb Ruby-binding, i.e. communicate with gdb in Ruby scripts.
   EOS
   s.license       = 'MIT'
   s.authors       = ['david942j']

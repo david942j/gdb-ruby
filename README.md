@@ -8,16 +8,16 @@
 
 # GDB-Ruby
 
-It's time for Ruby lovers to use Ruby in gdb and, gdb in Ruby!
+It's time for Ruby lovers to use Ruby in gdb and gdb in Ruby!
 
 Achieve two things in one gem:
 
-1. Launch Ruby interactive shell (pry) in gdb.
-2. A gdb Ruby-binding, i.e. communiate with gdb in a Ruby script.
+1. Launching Ruby interactive shell (pry) in gdb.
+2. gdb Ruby-binding, i.e. communicate with gdb in Ruby scripts.
 
 # Use Ruby in gdb
 
-We provide a binary `gdb-ruby` (a Ruby script actually) with usage exactly same as normal gdb,
+We provide a binary `gdb-ruby` (a Ruby script actually) with usage exactly the same as a normal gdb,
 while has two extra commands: `ruby` and `pry`!
 
 See examples below:
@@ -58,8 +58,8 @@ Example:
 
 Completely *NO* effort if you want to use **gdb-ruby** with other gdb extensions.
 
-For example, I usually use [gef](https://github.com/hugsy/gef) for my gdb.
-And everything works as usual when integrated with **gdb-ruby**:
+For example, I usually use the plugin [gef](https://github.com/hugsy/gef) with gdb.
+Everything works as usual when integrated with **gdb-ruby**:
 
 Launching with `$ gdb-ruby -q bash`
 
@@ -71,7 +71,7 @@ Communicate with gdb in your Ruby script.
 
 ## Useful methods
 
-Basical usage is use `execute` to do anything you want to execute inside gdb,
+Basic usage is use `execute` to do anything you want to execute inside gdb,
 while **gdb-ruby** provides some useful methods listed as following:
 
 * `break`: Set break points. Alias: `b`
@@ -90,7 +90,7 @@ All of these methods are fully documented at [online doc](http://www.rubydoc.inf
 Play with argv using **gdb-ruby**.
 
 This script does:
-1. Set break point at `main`.
+1. Set a break point at `main`.
 2. Get argv using `register` and `read_memory`.
 3. Change argv using `write_memory`.
 
@@ -132,7 +132,7 @@ gdb = GDB::GDB.new('bash')
 # set breakpoints
 gdb.break('main')
 gdb.run
-# shows process do running
+# to show the process do stop at the breakpoint
 gdb.execute('info reg rip')
 #=> "rip            0x41eed0\t0x41eed0 <main>"
 
@@ -157,7 +157,7 @@ bundle
 bundle exec rake
 ```
 
-# Bugs & feedbacks
+# Bugs & Feedback
 
 Feel free to file an issue if you find any bugs.
 Any feature requests and suggestions are welcome! :grimacing:
