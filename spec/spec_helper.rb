@@ -68,6 +68,12 @@ module Helpers
   end
 end
 
+class String
+  def uncolorize
+    self.gsub(/\e\[([;\d]+)?m/, '')
+  end
+  alias uc uncolorize
+end
 RSpec.configure do |c|
   c.include Helpers
 end
