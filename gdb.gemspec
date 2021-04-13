@@ -26,7 +26,7 @@ Achieve two things in one gem:
   s.require_paths = ['lib']
   s.executables   = ['gdb-ruby']
 
-  s.required_ruby_version = '>= 2.3'
+  s.required_ruby_version = '>= 2.4'
 
   s.add_dependency 'pry', '~> 0.11'
   s.add_dependency 'memory_io', '~> 0.2'
