@@ -36,7 +36,7 @@ jobs:
       env:
         TERM: vt100 # prevent gdb output escape strings
     - name: Publish code coverage
-      if: ${{ success() && runner.os == 'Linux' }}
+      if: ${{ success() && runner.os == 'Linux' && env.CC_TEST_REPORTER_ID }}
       uses: paambaati/codeclimate-action@v2.7.5
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
