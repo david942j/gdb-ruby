@@ -1,15 +1,19 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 require 'io/wait'
 require 'rspec'
 require 'securerandom'
 require 'simplecov'
+require 'simplecov_json_formatter'
 require 'tmpdir'
 require 'tty/platform'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
-  [SimpleCov::Formatter::HTMLFormatter]
-)
 SimpleCov.start do
+  formatter SimpleCov::Formatter::MultiFormatter.new([
+                                                       SimpleCov::Formatter::JSONFormatter,
+                                                       SimpleCov::Formatter::HTMLFormatter
+                                                     ])
   add_filter '/spec/'
 end
 
@@ -24,7 +28,7 @@ module Helpers
     old_stdout = $stdout.dup
     $stdin = StringIO.new
     $stdout = StringIO.new
-    buffer = ''
+    buffer = +''
     allow(IO).to receive(:select) do |*args|
       args.first.delete($stdin)
       out, = args.first
