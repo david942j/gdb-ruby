@@ -65,7 +65,7 @@ module Helpers
       # * Un-colorize
       # @return [String]
       def printable_string
-        string.gsub("\r\n", "\n").gsub(/\e\[\?2004./, "").uncolorize
+        string.gsub("\r\n", "\n").gsub("\n\n", "\n").gsub(/\e\[\?2004./, "").uncolorize
       end
     end
     yield

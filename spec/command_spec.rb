@@ -124,6 +124,7 @@ end
       ) do
         @new_gdb.call.interact
         output = $stdout.printable_string
+        p output
         expect(output).to include(<<-EOS.strip)
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method
