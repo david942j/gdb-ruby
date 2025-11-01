@@ -19,11 +19,11 @@ describe GDB::GDB do
 
   it 'initialize' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.execute('break main').make_printable).to eq 'Breakpoint 1 at 0x40062a'
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x40062a'
     end
 
     @new_gdb.call('amd64.pie.elf') do |gdb|
-      expect(gdb.execute('break main').make_printable).to eq 'Breakpoint 1 at 0x854'
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x854'
       expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
 Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
@@ -37,8 +37,8 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
 
   it 'break' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.break('main').make_printable).to eq 'Breakpoint 1 at 0x40062a'
-      expect(gdb.b(0x40062a).make_printable).to eq "Note: breakpoint 1 also set at pc 0x40062a.\nBreakpoint 2 at 0x40062a"
+      expect(gdb.break('main').make_printable.strip).to eq 'Breakpoint 1 at 0x40062a'
+      expect(gdb.b(0x40062a).make_printable.strip).to eq "Note: breakpoint 1 also set at pc 0x40062a.\nBreakpoint 2 at 0x40062a"
     end
   end
 
@@ -52,6 +52,12 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
   end
 
   it 'run' do
+    @new_gdb.call('amd64.elf') do |gdb|
+      output = gdb.run('1111')
+      p output
+      expect(output).to eq 'test'
+    end
+
     @new_gdb.call('amd64.elf') do |gdb|
       expect(gdb.run('1111').lines[1].strip).to eq '1111'
     end
@@ -77,7 +83,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
   it 'info' do
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
-      expect(gdb.info('b').make_printable).to eq <<-EOS.strip
+      expect(gdb.info('b').make_printable).to eq <<-EOS
 Num     Type           Disp Enb Address            What
 1       breakpoint     keep y   0x000000000040062a <main+4>
       EOS
