@@ -46,9 +46,10 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
       expect(gdb.alive?).to be false
-      output = gdb.run
+      gdb.run
+      output = gdb.python_p('gdb.selected_inferior().pid')
       p output
-      expect(output).to eq 'test'
+      expect(output).to eq 'a'
       expect(gdb.alive?).to be true
     end
   end
