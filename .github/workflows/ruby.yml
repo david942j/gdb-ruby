@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+
 jobs:
   test:
 
@@ -13,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos]
-        ruby-version: ['2.6', '2.7', head]
+        ruby-version: ['3.2', '3.3', '3.4', head]
 
     steps:
     - uses: actions/checkout@v2
@@ -36,7 +41,8 @@ jobs:
       env:
         TERM: vt100 # prevent gdb output escape strings
     - name: Publish code coverage
-      if: ${{ success() && runner.os == 'Linux' && env.CC_TEST_REPORTER_ID }}
-      uses: paambaati/codeclimate-action@v2.7.5
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      if: ${{ success() && runner.os == 'Linux' }}
+      uses: qltysh/qlty-action/coverage@v1
+      with:
+        oidc: true
+        files: coverage/coverage.json
