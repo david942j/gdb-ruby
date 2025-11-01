@@ -22,19 +22,20 @@ Achieve two things in one gem:
   s.authors       = ['david942j']
   s.email         = ['david942j@gmail.com']
   s.homepage      = 'https://github.com/david942j/gdb-ruby'
-  s.files         = Dir['lib/**/*.{rb,py}'] + %w(README.md)
+  s.files         = Dir['lib/**/*.{rb,py}'] + %w[README.md LICENSE]
   s.require_paths = ['lib']
   s.executables   = ['gdb-ruby']
 
-  s.required_ruby_version = '>= 2.4'
+  s.metadata['rubygems_mfa_required'] = 'true'
+  s.required_ruby_version = '>= 3.2'
 
-  s.add_dependency 'pry', '~> 0.11'
   s.add_dependency 'memory_io', '~> 0.2'
+  s.add_dependency 'pry', '~> 0.11'
 
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rspec', '~> 3.8'
   s.add_development_dependency 'rubocop', '~> 1'
-  s.add_development_dependency 'simplecov', '~> 0.17', '< 0.18'
+  s.add_development_dependency 'simplecov', '~> 0.21'
   s.add_development_dependency 'tty-platform', '~> 0.1'
   s.add_development_dependency 'yard', '~> 0.9'
 end
