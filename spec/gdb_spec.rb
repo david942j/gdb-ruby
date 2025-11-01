@@ -138,7 +138,7 @@ Num     Type           Disp Enb Address            What
       expect(gdb.read_memory(argv2, 7)).to eq 'the cat'
       gdb.write_memory(argv2 + 4, 'FAT')
       pid = gdb.pid
-      expect(gdb.continue.lines.map(&:strip).join("\n")).to eq <<-EOS.strip
+      expect(gdb.continue.make_printable.lines.map(&:strip).join("\n")).to eq <<-EOS.strip
 Continuing.
 pusheen
 the FAT
