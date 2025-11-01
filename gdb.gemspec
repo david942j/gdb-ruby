@@ -38,5 +38,5 @@ Achieve two things in one gem:
   s.add_development_dependency 'rubocop', '~> 1'
   s.add_development_dependency 'simplecov', '~> 0.21'
   s.add_development_dependency 'tty-platform', '~> 0.1'
-  s.add_development_dependency 'yard', '~> 0.9'
+  s.add_development_dependency 'yard', '>= 0.9.36'
 end

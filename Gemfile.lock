@@ -86,7 +86,7 @@ DEPENDENCIES
   rubocop (~> 1)
   simplecov (~> 0.21)
   tty-platform (~> 0.1)
-  yard (~> 0.9)
+  yard (>= 0.9.36)
 
 BUNDLED WITH
    2.6.2
