@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos]
-        ruby-version: ['3.2', '3.3', '3.4', head]
+        ruby-version: ['3.2', '3.3', '3.4']
 
     steps:
     - uses: actions/checkout@v2
