@@ -147,7 +147,7 @@ the FAT
   it 'interact' do
     hook_stdin_out('b main', 'run', 'quit') do
       @new_gdb.call('amd64.elf', &:interact)
-      expect($stdout.string.gsub("\r\n", "\n").uc).to include <<-EOS
+      expect($stdout.printable_string).to include <<-EOS
 (gdb) b main
 Breakpoint 1 at 0x40062a
 (gdb) run
@@ -160,7 +160,7 @@ Breakpoint 1, 0x000000000040062a in main ()
     # test for issue #2
     hook_stdin_out('set prompt gdb>', 'quit', prompt: '') do
       @new_gdb.call('amd64.elf', &:interact)
-      output = $stdout.string.gsub("\r\n", "\n").uc
+      output = $stdout.printable_string
       expect(output).to include <<-EOS
 (gdb) set prompt gdb>
       EOS

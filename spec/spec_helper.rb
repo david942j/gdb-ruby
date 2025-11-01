@@ -58,6 +58,16 @@ module Helpers
         self.gets
       end
     end
+
+    class << $stdout
+      # * Replace "\r\n" with "\n"
+      # * Remove ANSI escape sequences \e[?2004l and \e[?2004h
+      # * Un-colorize
+      # @return [String]
+      def printable_string
+        string.gsub("\r\n", "\n").gsub(/\e\[\?2004./, "").uncolorize
+      end
+    end
     yield
   ensure
     $stdin.close

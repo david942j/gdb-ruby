@@ -26,7 +26,7 @@ describe 'command' do
       hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS.strip)
+        expect($stdout.printable_string).to include(<<-EOS.strip)
 (gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
@@ -60,7 +60,7 @@ NameError: undefined local variable or method
       hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n").gsub("\t", ' ' * 12)).to include(<<-EOS)
+        expect($stdout.printable_string.gsub("\t", ' ' * 12)).to include(<<-EOS)
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
@@ -74,7 +74,7 @@ rip            0x40062a            0x40062a <main+4>
   it 'python exception' do
     hook_stdin_out('ruby puts gdb.exec("invalid command")', 'quit') do
       @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+      expect($stdout.printable_string).to include(<<-EOS)
 (gdb) ruby puts gdb.exec("invalid command")
 Undefined command: "invalid".  Try "help".
 (gdb) quit
@@ -93,7 +93,7 @@ Undefined command: "invalid".  Try "help".
       end
       @new_gdb.call.interact
       expect(enter_pry).to be true
-      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+      expect($stdout.printable_string).to include(<<-EOS)
 (gdb) help pry
 Enter Ruby interactive shell.
 Everything works like a charm!
@@ -123,7 +123,7 @@ end
         'quit'
       ) do
         @new_gdb.call.interact
-        output = $stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')
+        output = $stdout.printable_string
         expect(output).to include(<<-EOS.strip)
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method
