@@ -24,7 +24,7 @@ describe GDB::GDB do
 
     @new_gdb.call('amd64.pie.elf') do |gdb|
       expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x854'
-      expect(gdb.execute('run').lines.first.make_printable).to eq <<-EOS
+      expect(gdb.execute('run').lines.first.make_printable.strip).to eq <<-EOS.strip
 Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
       expect(gdb.exec('invalid command').make_printable.strip).to eq 'Undefined command: "invalid".  Try "help".'
@@ -55,7 +55,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
 
   it 'run' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.run('1111').to include '1111'
+      expect(gdb.run('1111')).to include '1111'
     end
 
     # issue#37
@@ -79,7 +79,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
   it 'info' do
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
-      expect(gdb.info('b').make_printable).to eq <<-EOS
+      expect(gdb.info('b').make_printable.strip).to eq <<-EOS.strip
 Num     Type           Disp Enb Address            What
 1       breakpoint     keep y   0x000000000040062a <main+4>
       EOS
