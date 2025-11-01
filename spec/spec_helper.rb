@@ -89,7 +89,7 @@ class String
   # * Un-colorize
   # @return [String]
   def make_printable
-    gsub("\r", "").gsub(/\e\[\?2004./, "").uncolorize
+    gsub("\r", '').gsub(/\e\[\?2004./, '').uncolorize
   end
 end
 RSpec.configure do |c|

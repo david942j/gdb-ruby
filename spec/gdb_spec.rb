@@ -38,7 +38,10 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
   it 'break' do
     @new_gdb.call('amd64.elf') do |gdb|
       expect(gdb.break('main').make_printable.strip).to eq 'Breakpoint 1 at 0x40062a'
-      expect(gdb.b(0x40062a).make_printable.strip).to eq "Note: breakpoint 1 also set at pc 0x40062a.\nBreakpoint 2 at 0x40062a"
+      expect(gdb.b(0x40062a).make_printable.strip).to eq <<-EOS.strip
+Note: breakpoint 1 also set at pc 0x40062a.
+Breakpoint 2 at 0x40062a
+      EOS
     end
   end
 
@@ -47,9 +50,6 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       gdb.b('main')
       expect(gdb.alive?).to be false
       gdb.run
-      output = gdb.python_p('gdb.selected_inferior().pid')
-      p output
-      expect(output).to eq 'a'
       expect(gdb.alive?).to be true
     end
   end
