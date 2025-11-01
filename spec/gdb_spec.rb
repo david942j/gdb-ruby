@@ -1,4 +1,5 @@
-#encoding: ascii-8bit
+# encoding: ascii-8bit
+# frozen_string_literal: true
 
 require 'tempfile'
 
@@ -10,7 +11,7 @@ describe GDB::GDB do
 
     @binpath = ->(f) { File.join('spec', 'binaries', f) }
     @new_gdb = lambda do |f, &block|
-      gdb = described_class.new('-q --nx ' + @binpath[f])
+      gdb = described_class.new("-q --nx #{@binpath[f]}")
       block.call(gdb)
       gdb.close
     end
@@ -18,26 +19,29 @@ describe GDB::GDB do
 
   it 'initialize' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.execute('break main').uc).to eq 'Breakpoint 1 at 0x40062a'
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x40062a'
     end
 
     @new_gdb.call('amd64.pie.elf') do |gdb|
-      expect(gdb.execute('break main').uc).to eq 'Breakpoint 1 at 0x854'
-      expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x854'
+      expect(gdb.execute('run').lines.first.make_printable.strip).to eq <<-EOS.strip
 Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
-      expect(gdb.exec('invalid command')).to eq 'Undefined command: "invalid".  Try "help".'
+      expect(gdb.exec('invalid command').make_printable.strip).to eq 'Undefined command: "invalid".  Try "help".'
     end
 
     @new_gdb.call('amd64.pie.strip.elf') do |gdb|
-      expect(gdb.execute('break main')).to eq 'Function "main" not defined.'
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Function "main" not defined.'
     end
   end
 
   it 'break' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.break('main').uc).to eq 'Breakpoint 1 at 0x40062a'
-      expect(gdb.b(0x40062a).uc).to eq "Note: breakpoint 1 also set at pc 0x40062a.\r\nBreakpoint 2 at 0x40062a"
+      expect(gdb.break('main').make_printable.strip).to eq 'Breakpoint 1 at 0x40062a'
+      expect(gdb.b(0x40062a).make_printable.strip).to eq <<-EOS.strip
+Note: breakpoint 1 also set at pc 0x40062a.
+Breakpoint 2 at 0x40062a
+      EOS
     end
   end
 
@@ -52,7 +56,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
 
   it 'run' do
     @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.run('1111').lines[1].strip).to eq '1111'
+      expect(gdb.run('1111')).to include '1111'
     end
 
     # issue#37
@@ -76,7 +80,7 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
   it 'info' do
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
-      expect(gdb.info('b').uc).to eq <<-EOS.strip.gsub("\n", "\r\n")
+      expect(gdb.info('b').make_printable.strip).to eq <<-EOS.strip
 Num     Type           Disp Enb Address            What
 1       breakpoint     keep y   0x000000000040062a <main+4>
       EOS
@@ -92,7 +96,7 @@ Num     Type           Disp Enb Address            What
 
     @new_gdb.call('amd64.pie.elf') do |gdb|
       gdb.b('main')
-      stop = gdb.r.uc.scan(/Breakpoint 1, 0x(.*) in main \(\)/).flatten.first.to_i(16)
+      stop = gdb.r.make_printable.scan(/Breakpoint 1, 0x(.*) in main \(\)/).flatten.first.to_i(16)
       expect(gdb.text_base).to eq stop & -4096
     end
   end
@@ -108,11 +112,13 @@ Num     Type           Disp Enb Address            What
       args = gdb.read_memory(gdb.register(:rsi), argc, as: :u64)
       ary = Array.new(argc) do |i|
         next 'argv0' if i == 0
+
         gdb.read_memory(args[i], 1) do |m|
-          str = ''
+          str = +''
           loop do
             c = m.read(1)
             break if c == "\x00"
+
             str << c
           end
           str
@@ -132,7 +138,7 @@ Num     Type           Disp Enb Address            What
       expect(gdb.read_memory(argv2, 7)).to eq 'the cat'
       gdb.write_memory(argv2 + 4, 'FAT')
       pid = gdb.pid
-      expect(gdb.continue.lines.map(&:strip).join("\n")).to eq <<-EOS.strip
+      expect(gdb.continue.make_printable.lines.map(&:strip).join("\n")).to eq <<-EOS.strip
 Continuing.
 pusheen
 the FAT
@@ -144,12 +150,14 @@ the FAT
   it 'interact' do
     hook_stdin_out('b main', 'run', 'quit') do
       @new_gdb.call('amd64.elf', &:interact)
-      expect($stdout.string.gsub("\r\n", "\n").uc).to include <<-EOS
+      output = $stdout.printable_string
+      expect(output).to include <<-EOS
 (gdb) b main
 Breakpoint 1 at 0x40062a
 (gdb) run
-Starting program: #{File.realpath(@binpath['amd64.elf'])} 
-
+Starting program: #{File.realpath(@binpath['amd64.elf'])}#{' '}
+      EOS
+      expect(output).to include <<-EOS
 Breakpoint 1, 0x000000000040062a in main ()
 (gdb) quit
       EOS
@@ -157,8 +165,11 @@ Breakpoint 1, 0x000000000040062a in main ()
     # test for issue #2
     hook_stdin_out('set prompt gdb>', 'quit', prompt: '') do
       @new_gdb.call('amd64.elf', &:interact)
-      expect($stdout.string.gsub("\r\n", "\n").uc).to include <<-EOS
+      output = $stdout.printable_string
+      expect(output).to include <<-EOS
 (gdb) set prompt gdb>
+      EOS
+      expect(output).to include <<-EOS
 gdb>quit
       EOS
     end

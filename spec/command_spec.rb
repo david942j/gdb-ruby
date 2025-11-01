@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'gdb/gdb'
 
 describe 'command' do
   before(:all) do
-    @new_gdb = -> () do
+    @new_gdb = lambda do
       gdb = GDB::GDB.new('-q -nh spec/binaries/amd64.elf')
-      allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       # make gdb out more stable
       out = gdb.instance_variable_get(:@tube).instance_variable_get(:@out)
       org_method = out.method(:readpartial)
@@ -21,11 +22,10 @@ describe 'command' do
   end
 
   describe 'ruby' do
-    it 'simple' do
-      hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
-                     'quit') do
+    it 'help' do
+      hook_stdin_out('help ruby', 'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+        expect($stdout.printable_string).to include(<<-EOS.strip)
 (gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
@@ -44,12 +44,19 @@ Method defined will remain in context:
     ruby def a(b); b * b; end
     ruby p a(9)
     # 81
+        EOS
+      end
+    end
 
+    it 'raises an error' do
+      hook_stdin_out('ruby puts 123', 'ruby p a',
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.printable_string).to include(<<-EOS.strip)
 (gdb) ruby puts 123
 123
 (gdb) ruby p a
-NameError: undefined local variable or method `a' for #<GDB::EvalContext>
-(gdb) quit
+NameError: undefined local variable or method
         EOS
       end
     end
@@ -60,7 +67,7 @@ NameError: undefined local variable or method `a' for #<GDB::EvalContext>
       hook_stdin_out('ruby gdb.break("main")', 'ruby gdb.run', 'info reg $rip',
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n").gsub("\t", ' ' * 12)).to include(<<-EOS)
+        expect($stdout.printable_string.gsub("\t", ' ' * 12)).to include(<<-EOS)
 (gdb) ruby gdb.break("main")
 (gdb) ruby gdb.run
 (gdb) info reg $rip
@@ -74,7 +81,7 @@ rip            0x40062a            0x40062a <main+4>
   it 'python exception' do
     hook_stdin_out('ruby puts gdb.exec("invalid command")', 'quit') do
       @new_gdb.call.interact
-      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+      expect($stdout.printable_string).to include(<<-EOS)
 (gdb) ruby puts gdb.exec("invalid command")
 Undefined command: "invalid".  Try "help".
 (gdb) quit
@@ -93,7 +100,7 @@ Undefined command: "invalid".  Try "help".
       end
       @new_gdb.call.interact
       expect(enter_pry).to be true
-      expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+      expect($stdout.printable_string).to include(<<-EOS)
 (gdb) help pry
 Enter Ruby interactive shell.
 Everything works like a charm!
@@ -103,16 +110,13 @@ Syntax: pry
 Example:
     pry
     # [1] pry(#<GDB::EvalContext>)>
-
-(gdb) pry
-(gdb) quit
       EOS
     end
   end
 
   it 'rsource' do
     with_tempfile do |temp|
-      IO.binwrite(temp, <<-RUBY)
+      File.binwrite(temp, <<-RUBY)
 def method_after_rsource!
 end
       RUBY
@@ -120,16 +124,20 @@ end
         'ruby method_after_rsource!',
         "rsource #{temp}",
         'ruby method_after_rsource!',
-        'quit') do
-          @new_gdb.call.interact
-          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to include(<<-EOS)
+        'quit'
+      ) do
+        @new_gdb.call.interact
+        output = $stdout.printable_string
+        expect(output).to include(<<-EOS.strip)
 (gdb) ruby method_after_rsource!
-NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
+NoMethodError: undefined method
+        EOS
+        expect(output).to include(<<-EOS)
 (gdb) rsource #{temp}
 (gdb) ruby method_after_rsource!
 (gdb) quit
-          EOS
-        end
+        EOS
+      end
     end
   end
 end

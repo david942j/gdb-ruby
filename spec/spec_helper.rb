@@ -1,15 +1,19 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 require 'io/wait'
 require 'rspec'
 require 'securerandom'
 require 'simplecov'
+require 'simplecov_json_formatter'
 require 'tmpdir'
 require 'tty/platform'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
-  [SimpleCov::Formatter::HTMLFormatter]
-)
 SimpleCov.start do
+  formatter SimpleCov::Formatter::MultiFormatter.new([
+                                                       SimpleCov::Formatter::JSONFormatter,
+                                                       SimpleCov::Formatter::HTMLFormatter
+                                                     ])
   add_filter '/spec/'
 end
 
@@ -24,7 +28,7 @@ module Helpers
     old_stdout = $stdout.dup
     $stdin = StringIO.new
     $stdout = StringIO.new
-    buffer = ''
+    buffer = +''
     allow(IO).to receive(:select) do |*args|
       args.first.delete($stdin)
       out, = args.first
@@ -39,7 +43,8 @@ module Helpers
       end
       next [[out]] if ary.empty?
       next [[]] if buffer.index(prompt).nil?
-      $stdin.string = ary.shift + "\n"
+
+      $stdin.string = "#{ary.shift}\n"
       buffer.slice!(0, buffer.index(prompt) + prompt.size)
       [[$stdin]]
     end
@@ -53,6 +58,12 @@ module Helpers
         self.gets
       end
     end
+
+    class << $stdout
+      def printable_string
+        string.make_printable
+      end
+    end
     yield
   ensure
     $stdin.close
@@ -61,7 +72,7 @@ module Helpers
   end
 
   def with_tempfile
-    filename = File.join(Dir.tmpdir, 'gdb-ruby-' + SecureRandom.hex(4))
+    filename = File.join(Dir.tmpdir, "gdb-ruby-#{SecureRandom.hex(4)}")
     yield filename
   ensure
     FileUtils.rm_f(filename)
@@ -70,9 +81,16 @@ end
 
 class String
   def uncolorize
-    self.gsub(/\e\[([;\d]+)?m/, '')
+    gsub(/\e\[([;\d]+)?m/, '')
   end
-  alias uc uncolorize
+
+  # * Remove "\r"
+  # * Remove ANSI escape sequences \e[?2004l and \e[?2004h
+  # * Un-colorize
+  # @return [String]
+  def make_printable
+    gsub("\r", '').gsub(/\e\[\?2004./, '').uncolorize
+  end
 end
 RSpec.configure do |c|
   c.include Helpers
