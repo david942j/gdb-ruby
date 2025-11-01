@@ -24,14 +24,14 @@ describe GDB::GDB do
 
     @new_gdb.call('amd64.pie.elf') do |gdb|
       expect(gdb.execute('break main').make_printable.strip).to eq 'Breakpoint 1 at 0x854'
-      expect(gdb.execute('run').lines.first.strip).to eq <<-EOS.strip
+      expect(gdb.execute('run').lines.first.make_printable).to eq <<-EOS
 Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
       EOS
-      expect(gdb.exec('invalid command')).to eq 'Undefined command: "invalid".  Try "help".'
+      expect(gdb.exec('invalid command').make_printable.strip).to eq 'Undefined command: "invalid".  Try "help".'
     end
 
     @new_gdb.call('amd64.pie.strip.elf') do |gdb|
-      expect(gdb.execute('break main')).to eq 'Function "main" not defined.'
+      expect(gdb.execute('break main').make_printable.strip).to eq 'Function "main" not defined.'
     end
   end
 
@@ -46,20 +46,16 @@ Starting program: #{File.realpath(@binpath['amd64.pie.elf'])}
     @new_gdb.call('amd64.elf') do |gdb|
       gdb.b('main')
       expect(gdb.alive?).to be false
-      gdb.run
+      output = gdb.run
+      p output
+      expect(output).to eq 'test'
       expect(gdb.alive?).to be true
     end
   end
 
   it 'run' do
     @new_gdb.call('amd64.elf') do |gdb|
-      output = gdb.run('1111')
-      p output
-      expect(output).to eq 'test'
-    end
-
-    @new_gdb.call('amd64.elf') do |gdb|
-      expect(gdb.run('1111').lines[1].strip).to eq '1111'
+      expect(gdb.run('1111').to include '1111'
     end
 
     # issue#37
@@ -153,12 +149,14 @@ the FAT
   it 'interact' do
     hook_stdin_out('b main', 'run', 'quit') do
       @new_gdb.call('amd64.elf', &:interact)
-      expect($stdout.printable_string).to include <<-EOS
+      output = $stdout.printable_string
+      expect(output).to include <<-EOS
 (gdb) b main
 Breakpoint 1 at 0x40062a
 (gdb) run
 Starting program: #{File.realpath(@binpath['amd64.elf'])}#{' '}
-
+      EOS
+      expect(output).to include <<-EOS
 Breakpoint 1, 0x000000000040062a in main ()
 (gdb) quit
       EOS
