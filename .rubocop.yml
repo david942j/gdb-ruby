@@ -1,6 +1,10 @@
 AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
+  NewCops: enable
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false
 
 Layout/EndOfLine:
   EnforcedStyle: lf
@@ -14,6 +18,11 @@ Layout/LineLength:
 
 Lint/Debugger:
   Enabled: false
+
+Lint/SuppressedException:
+  Enabled: true
+  Exclude:
+    - spec/*
 
 Metrics/AbcSize:
   Enabled: false
@@ -29,6 +38,11 @@ Metrics/CyclomaticComplexity:
 
 Metrics/MethodLength:
   Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Enabled: true
+  Exclude:
+    - spec/*
 
 Naming/MethodParameterName:
   Enabled: false

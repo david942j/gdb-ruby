@@ -43,7 +43,8 @@ module Helpers
       end
       next [[out]] if ary.empty?
       next [[]] if buffer.index(prompt).nil?
-      $stdin.string = ary.shift + "\n"
+
+      $stdin.string = "#{ary.shift}\n"
       buffer.slice!(0, buffer.index(prompt) + prompt.size)
       [[$stdin]]
     end
@@ -65,7 +66,7 @@ module Helpers
   end
 
   def with_tempfile
-    filename = File.join(Dir.tmpdir, 'gdb-ruby-' + SecureRandom.hex(4))
+    filename = File.join(Dir.tmpdir, "gdb-ruby-#{SecureRandom.hex(4)}")
     yield filename
   ensure
     FileUtils.rm_f(filename)
@@ -74,7 +75,7 @@ end
 
 class String
   def uncolorize
-    self.gsub(/\e\[([;\d]+)?m/, '')
+    gsub(/\e\[([;\d]+)?m/, '')
   end
   alias uc uncolorize
 end

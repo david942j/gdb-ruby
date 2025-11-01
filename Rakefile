@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'yard'
 
-task default: %i(rubocop spec)
+task default: %i[rubocop spec]
 
 RuboCop::RakeTask.new(:rubocop) do |task|
   task.patterns = %w[lib/**/*.rb spec/**/*.rb']

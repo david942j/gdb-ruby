@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'gdb/tube/buffer'
 
-describe ::GDB::Tube::Buffer do
+describe GDB::Tube::Buffer do
   before(:all) do
     @buffer = described_class.new
   end

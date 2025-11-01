@@ -20,6 +20,9 @@ module GDB
     # Absolute path to the python scripts.
     SCRIPTS_PATH = File.join(__dir__, 'scripts').freeze
 
+    # Used by private methods only.
+    COMMAND_PREFIX = 'gdb-ruby> '
+
     # To launch a gdb instance.
     #
     # @param [String] arguments
@@ -334,8 +337,6 @@ module GDB
       IO.console && output.winsize = IO.console.winsize
       ::GDB::Tube::Tube.new(input, output)
     end
-
-    COMMAND_PREFIX = 'gdb-ruby> '
 
     # @param [String] output
     #

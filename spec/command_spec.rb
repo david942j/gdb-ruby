@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'gdb/gdb'
 
 describe 'command' do
   before(:all) do
-    @new_gdb = -> () do
+    @new_gdb = lambda do
       gdb = GDB::GDB.new('-q -nh spec/binaries/amd64.elf')
       # make gdb out more stable
       out = gdb.instance_variable_get(:@tube).instance_variable_get(:@out)
@@ -110,7 +112,7 @@ Example:
 
   it 'rsource' do
     with_tempfile do |temp|
-      IO.binwrite(temp, <<-RUBY)
+      File.binwrite(temp, <<-RUBY)
 def method_after_rsource!
 end
       RUBY
@@ -118,19 +120,20 @@ end
         'ruby method_after_rsource!',
         "rsource #{temp}",
         'ruby method_after_rsource!',
-        'quit') do
-          @new_gdb.call.interact
-          output = $stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')
-          expect(output).to include(<<-EOS.strip)
+        'quit'
+      ) do
+        @new_gdb.call.interact
+        output = $stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')
+        expect(output).to include(<<-EOS.strip)
 (gdb) ruby method_after_rsource!
 NoMethodError: undefined method
-          EOS
-          expect(output).to include(<<-EOS)
+        EOS
+        expect(output).to include(<<-EOS)
 (gdb) rsource #{temp}
 (gdb) ruby method_after_rsource!
 (gdb) quit
-          EOS
-        end
+        EOS
+      end
     end
   end
 end

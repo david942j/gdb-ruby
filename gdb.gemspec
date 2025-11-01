@@ -1,4 +1,6 @@
-lib = File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'date'
@@ -7,17 +9,16 @@ require 'gdb/version'
 
 Gem::Specification.new do |s|
   s.name          = 'gdb'
-  s.version       = ::GDB::VERSION
-  s.date          = Date.today.to_s
+  s.version       = GDB::VERSION
   s.summary       = 'GDB Ruby-binding plus Ruby interactive shell in GDB'
-  s.description   = <<-EOS
+  s.description   = <<-DESCRIPTION
 It's time for Ruby lovers to use Ruby in gdb and gdb in Ruby!
 
 Achieve two things in one gem:
 
 1. Launching Ruby interactive shell (pry) in gdb.
 2. gdb Ruby-binding, i.e. communicate with gdb in Ruby scripts.
-  EOS
+  DESCRIPTION
   s.license       = 'MIT'
   s.authors       = ['david942j']
   s.email         = ['david942j@gmail.com']

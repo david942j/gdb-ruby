@@ -1,4 +1,5 @@
-#encoding: ascii-8bit
+# encoding: ascii-8bit
+# frozen_string_literal: true
 
 require 'tempfile'
 
@@ -10,7 +11,7 @@ describe GDB::GDB do
 
     @binpath = ->(f) { File.join('spec', 'binaries', f) }
     @new_gdb = lambda do |f, &block|
-      gdb = described_class.new('-q --nx ' + @binpath[f])
+      gdb = described_class.new("-q --nx #{@binpath[f]}")
       block.call(gdb)
       gdb.close
     end
@@ -108,11 +109,13 @@ Num     Type           Disp Enb Address            What
       args = gdb.read_memory(gdb.register(:rsi), argc, as: :u64)
       ary = Array.new(argc) do |i|
         next 'argv0' if i == 0
+
         gdb.read_memory(args[i], 1) do |m|
-          str = ''
+          str = +''
           loop do
             c = m.read(1)
             break if c == "\x00"
+
             str << c
           end
           str
@@ -148,7 +151,7 @@ the FAT
 (gdb) b main
 Breakpoint 1 at 0x40062a
 (gdb) run
-Starting program: #{File.realpath(@binpath['amd64.elf'])} 
+Starting program: #{File.realpath(@binpath['amd64.elf'])}#{' '}
 
 Breakpoint 1, 0x000000000040062a in main ()
 (gdb) quit
