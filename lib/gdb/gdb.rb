@@ -292,7 +292,7 @@ module GDB
     # @return [String]
     #   Execution result.
     def python_p(cmd)
-      execute("python print(#{cmd})")
+      execute("python print(#{cmd})").gsub("\r", "").gsub(/\e\[\?2004./, "")
     end
 
     # Enter gdb interactive mode.
