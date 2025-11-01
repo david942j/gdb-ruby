@@ -22,9 +22,8 @@ describe 'command' do
   end
 
   describe 'ruby' do
-    it 'simple' do
-      hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
-                     'quit') do
+    it 'help' do
+      hook_stdin_out('help ruby', 'quit') do
         @new_gdb.call.interact
         expect($stdout.printable_string).to include(<<-EOS.strip)
 (gdb) help ruby
@@ -45,7 +44,15 @@ Method defined will remain in context:
     ruby def a(b); b * b; end
     ruby p a(9)
     # 81
+        EOS
+      end
+    end
 
+    it 'raises an error' do
+      hook_stdin_out('ruby puts 123', 'ruby p a',
+                     'quit') do
+        @new_gdb.call.interact
+        expect($stdout.printable_string).to include(<<-EOS.strip)
 (gdb) ruby puts 123
 123
 (gdb) ruby p a
@@ -103,9 +110,6 @@ Syntax: pry
 Example:
     pry
     # [1] pry(#<GDB::EvalContext>)>
-
-(gdb) pry
-(gdb) quit
       EOS
     end
   end

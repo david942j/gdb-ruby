@@ -60,12 +60,8 @@ module Helpers
     end
 
     class << $stdout
-      # * Replace "\r\n" with "\n"
-      # * Remove ANSI escape sequences \e[?2004l and \e[?2004h
-      # * Un-colorize
-      # @return [String]
       def printable_string
-        string.gsub("\r", "").gsub(/\e\[\?2004./, "").uncolorize
+        string.make_printable
       end
     end
     yield
@@ -87,7 +83,14 @@ class String
   def uncolorize
     gsub(/\e\[([;\d]+)?m/, '')
   end
-  alias uc uncolorize
+
+  # * Remove "\r"
+  # * Remove ANSI escape sequences \e[?2004l and \e[?2004h
+  # * Un-colorize
+  # @return [String]
+  def make_printable
+    gsub("\r", "").gsub(/\e\[\?2004./, "").uncolorize
+  end
 end
 RSpec.configure do |c|
   c.include Helpers
