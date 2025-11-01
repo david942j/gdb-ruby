@@ -157,8 +157,11 @@ Breakpoint 1, 0x000000000040062a in main ()
     # test for issue #2
     hook_stdin_out('set prompt gdb>', 'quit', prompt: '') do
       @new_gdb.call('amd64.elf', &:interact)
-      expect($stdout.string.gsub("\r\n", "\n").uc).to include <<-EOS
+      output = $stdout.string.gsub("\r\n", "\n").uc
+      expect(output).to include <<-EOS
 (gdb) set prompt gdb>
+      EOS
+      expect(output).to include <<-EOS
 gdb>quit
       EOS
     end

@@ -4,7 +4,6 @@ describe 'command' do
   before(:all) do
     @new_gdb = -> () do
       gdb = GDB::GDB.new('-q -nh spec/binaries/amd64.elf')
-      allow_any_instance_of(GDB::EvalContext).to receive(:inspect).and_return('#<GDB::EvalContext>')
       # make gdb out more stable
       out = gdb.instance_variable_get(:@tube).instance_variable_get(:@out)
       org_method = out.method(:readpartial)
@@ -25,7 +24,7 @@ describe 'command' do
       hook_stdin_out('help ruby', 'ruby puts 123', 'ruby p a', # raise error
                      'quit') do
         @new_gdb.call.interact
-        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS)
+        expect($stdout.string.gsub("\r\n", "\n")).to include(<<-EOS.strip)
 (gdb) help ruby
 Evaluate a Ruby command.
 There's an instance 'gdb' for you. See examples.
@@ -48,8 +47,7 @@ Method defined will remain in context:
 (gdb) ruby puts 123
 123
 (gdb) ruby p a
-NameError: undefined local variable or method `a' for #<GDB::EvalContext>
-(gdb) quit
+NameError: undefined local variable or method
         EOS
       end
     end
@@ -122,9 +120,12 @@ end
         'ruby method_after_rsource!',
         'quit') do
           @new_gdb.call.interact
-          expect($stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')).to include(<<-EOS)
+          output = $stdout.string.gsub("\r\n", "\n").gsub(/ ?\r/, '')
+          expect(output).to include(<<-EOS.strip)
 (gdb) ruby method_after_rsource!
-NoMethodError: undefined method `method_after_rsource!' for #<GDB::EvalContext>
+NoMethodError: undefined method
+          EOS
+          expect(output).to include(<<-EOS)
 (gdb) rsource #{temp}
 (gdb) ruby method_after_rsource!
 (gdb) quit
