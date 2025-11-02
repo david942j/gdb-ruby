@@ -3,7 +3,6 @@
 require 'io/console'
 require 'memory_io'
 require 'pty'
-require 'readline'
 
 require 'gdb/eval_context'
 require 'gdb/gdb_error'
