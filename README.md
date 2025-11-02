@@ -1,8 +1,7 @@
 [![Build Status](https://github.com/david942j/gdb-ruby/workflows/build/badge.svg)](https://github.com/david942j/gdb-ruby/actions)
 [![Gem Version](https://badge.fury.io/rb/gdb.svg)](https://badge.fury.io/rb/gdb)
-[![Code Climate](https://codeclimate.com/github/david942j/gdb-ruby/badges/gpa.svg)](https://codeclimate.com/github/david942j/gdb-ruby)
-[![Issue Count](https://codeclimate.com/github/david942j/gdb-ruby/badges/issue_count.svg)](https://codeclimate.com/github/david942j/gdb-ruby)
-[![Test Coverage](https://codeclimate.com/github/david942j/gdb-ruby/badges/coverage.svg)](https://codeclimate.com/github/david942j/gdb-ruby/coverage)
+[![Maintainability](https://qlty.sh/gh/david942j/projects/gdb-ruby/maintainability.svg)](https://qlty.sh/gh/david942j/projects/gdb-ruby)
+[![Code Coverage](https://qlty.sh/gh/david942j/projects/gdb-ruby/coverage.svg)](https://qlty.sh/gh/david942j/projects/gdb-ruby)
 [![Inline docs](https://inch-ci.org/github/david942j/gdb-ruby.svg?branch=master)](https://inch-ci.org/github/david942j/gdb-ruby)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
 
