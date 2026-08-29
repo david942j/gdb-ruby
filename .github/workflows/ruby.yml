@@ -15,6 +15,7 @@ jobs:
   test:
 
     runs-on: ${{ matrix.os }}-latest
+    continue-on-error: ${{ matrix.ruby-version == 'head' }}
     strategy:
       matrix:
         os: [ubuntu, macos]
@@ -22,11 +23,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Strip lockfile on Ruby Head to bypass mismatch bundler version
+      if: matrix.ruby-version == 'head'
+      run: |
+        echo "Removing Gemfile.lock"
+        rm -f Gemfile.lock
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        bundler-cache: ${{ matrix.ruby-version != 'head' }} # runs 'bundle install' and caches installed gems automatically
+    - name: Install dependencies for Ruby head
+      if: matrix.ruby-version == 'head'
+      run: bundle install
     - name: Install packages
       run: |
          if [ "$RUNNER_OS" == "Linux" ]; then
