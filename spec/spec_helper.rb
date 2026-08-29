@@ -32,7 +32,7 @@ module Helpers
     allow(IO).to receive(:select) do |*args|
       args.first.delete($stdin)
       out, = args.first
-      if out.ready?
+      if out.wait_readable(0)
         begin
           s = out.readpartial(4096)
           buffer << s
