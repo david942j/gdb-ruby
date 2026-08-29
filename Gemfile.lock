@@ -11,7 +11,7 @@ GEM
     ast (2.4.3)
     bigdecimal (3.3.1)
     coderay (1.1.3)
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.7)
     dentaku (3.5.6)
       bigdecimal
       concurrent-ruby
